@@ -2,9 +2,150 @@
     // evita duplo carregamento
     if (document.getElementById('bmSplash')) return;
 
-    // guarda último elemento clicado (mantido para a função original "Iniciar")
+    // guarda último elemento clicado (CRUCIAL para ambas as funções)
     let activeEl = null;
-    document.addEventListener('mousedown', e => activeEl = e.target, true);
+    document.addEventListener('mousedown', e => {
+        console.log('mousedown detected, activeEl set to:', e.target);
+        activeEl = e.target;
+    }, true); // Use capturing phase
+
+    // --- FUNÇÕES DE SIMULAÇÃO DE TECLADO (MODIFICADAS/NOVAS) ---
+
+    // Função para simular eventos de teclado genéricos
+    function dispatchKeyEvent(target, eventType, key, keyCode, charCode = 0) {
+        // Define charCode com base no keyCode se for um caractere imprimível e charCode não for fornecido
+        let effectiveCharCode = charCode;
+        if (!effectiveCharCode && key && key.length === 1) {
+            effectiveCharCode = key.charCodeAt(0);
+        }
+
+        const event = new KeyboardEvent(eventType, {
+            key: key,
+            code: `Key${key.toUpperCase()}`, // Aproximação, pode não ser exato para todas as teclas
+            keyCode: keyCode,
+            which: keyCode,
+            charCode: eventType === 'keypress' ? effectiveCharCode : 0, // charCode apenas para keypress
+            bubbles: true,
+            cancelable: true
+        });
+        // console.log(`Dispatching ${eventType}: key=${key}, keyCode=${keyCode}, charCode=${effectiveCharCode} on`, target);
+        target.dispatchEvent(event);
+    }
+
+
+    // Função para SIMULAR a tecla Backspace
+    async function simulateBackspace(targetElement) {
+        if (!targetElement) return;
+        activeEl = targetElement; // Garante que activeEl é o target
+        targetElement.focus(); // Garante foco
+
+        const start = targetElement.selectionStart;
+        const end = targetElement.selectionEnd;
+
+        dispatchKeyEvent(targetElement, 'keydown', 'Backspace', 8);
+
+        // Lógica manual de exclusão se for INPUT ou TEXTAREA
+        if ((targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA')) {
+           if (start === end && start > 0) { // Se for cursor (não seleção) e não estiver no início
+               const currentValue = targetElement.value;
+               const newValue = currentValue.substring(0, start - 1) + currentValue.substring(end);
+
+               // Tenta usar setter do protótipo para compatibilidade com frameworks
+               const prototype = Object.getPrototypeOf(targetElement);
+               const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+               if (descriptor && descriptor.set) {
+                   descriptor.set.call(targetElement, newValue);
+               } else {
+                   targetElement.value = newValue; // Fallback
+               }
+
+               // Ajusta o cursor
+               targetElement.selectionStart = targetElement.selectionEnd = start - 1;
+
+               // Dispara eventos para notificar frameworks/listeners da mudança
+               targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+               targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+           } else if (start !== end) {
+               // Se houver texto selecionado, Backspace o deletaria
+                const currentValue = targetElement.value;
+                const newValue = currentValue.substring(0, start) + currentValue.substring(end);
+                 // (Repete a lógica de atualização de valor e disparo de eventos acima)
+                  const prototype = Object.getPrototypeOf(targetElement);
+                  const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+                  if (descriptor && descriptor.set) {
+                      descriptor.set.call(targetElement, newValue);
+                  } else {
+                      targetElement.value = newValue; // Fallback
+                  }
+                  targetElement.selectionStart = targetElement.selectionEnd = start; // Coloca cursor no início da antiga seleção
+                  targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+                  targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+           }
+        } else if (targetElement.isContentEditable) {
+             // Para contentEditable, 'delete' pode funcionar melhor que backspace simulado programaticamente
+             document.execCommand('delete', false, null);
+         }
+
+        dispatchKeyEvent(targetElement, 'keyup', 'Backspace', 8);
+        // Pequena pausa após cada backspace simulado
+        await new Promise(r => setTimeout(r, 25)); // Ajuste o delay conforme necessário (25ms)
+    }
+
+    // Função para SIMULAR digitação de um caractere (REUTILIZADA E VERIFICADA)
+    function sendChar(c) {
+        // A função agora depende que activeEl seja definido CORRETAMENTE antes de ser chamada
+        if (!activeEl) {
+            console.warn("sendChar chamada, mas activeEl é nulo. Clique em um campo primeiro.");
+            return;
+        }
+        if (!document.body.contains(activeEl)) {
+             console.warn("sendChar chamada, mas activeEl não está mais no DOM.");
+             return; // Evita erros se o elemento foi removido
+        }
+
+
+        const targetElement = activeEl; // Usa a variável global
+        targetElement.focus(); // Garante foco
+
+        const keyCode = c.charCodeAt(0);
+
+        // 1. keydown
+        dispatchKeyEvent(targetElement, 'keydown', c, keyCode);
+
+        // 2. keypress (apenas para caracteres imprimíveis)
+        dispatchKeyEvent(targetElement, 'keypress', c, keyCode, keyCode); // Passa charCode aqui
+
+        // 3. Inserir o caractere
+        if (targetElement.isContentEditable) {
+            document.execCommand('insertText', false, c);
+        } else if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA') {
+            const start = targetElement.selectionStart;
+            const end = targetElement.selectionEnd;
+            const currentValue = targetElement.value;
+            const newValue = currentValue.substring(0, start) + c + currentValue.substring(end);
+
+            // Tenta usar setter do protótipo
+            const prototype = Object.getPrototypeOf(targetElement);
+            const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+            if (descriptor && descriptor.set) {
+                descriptor.set.call(targetElement, newValue);
+            } else {
+                targetElement.value = newValue; // Fallback
+            }
+
+            // Ajusta o cursor para depois do caractere inserido
+            targetElement.selectionStart = targetElement.selectionEnd = start + c.length;
+
+            // Dispara eventos input/change
+            targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+            targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+        }
+
+        // 4. keyup
+        dispatchKeyEvent(targetElement, 'keyup', c, keyCode);
+    }
+
+    // --- RESTANTE DO CÓDIGO (Splash, CSS, UI, Modo Disfarçado - sem grandes mudanças) ---
 
     //
     // 1) SPLASH INICIAL
@@ -14,14 +155,14 @@
     splash.innerHTML = `
       <img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/>
       <div id="bmSplashTxt1">Paraná Colado</div>
-      <div id="bmSplashTxt2">V1 Modificado</div>
+      <div id="bmSplashTxt2">V1 AutoEditor Simulado</div>
     `;
     document.body.appendChild(splash);
 
     //
     // 2) CSS injetado (estilo KW-like + Estilo para novo botão)
-    //
-    const css = `
+    // (CSS Omitido por brevidade - use o CSS da resposta anterior)
+        const css = `
       /* === SPLASH === */
       #bmSplash {
         position: fixed; top:0; left:0;
@@ -196,22 +337,24 @@
     // 3) após splash, monta UI principal
     //
     setTimeout(() => {
-        document.body.removeChild(splash);
+        if (document.body.contains(splash)) {
+           document.body.removeChild(splash);
+        }
+
 
         const wrapper = document.createElement('div');
         wrapper.id = 'bmWrapper';
         // Adiciona o novo botão "Corrigir Automaticamente" no innerHTML
         wrapper.innerHTML = `
-          <div id="bmHeader">Paraná Colado V1 - AutoCorretor</div>
+          <div id="bmHeader">Paraná Colado V1 - AutoEditor Simulado</div>
           <div id="bmContent">
             <textarea id="bmText" placeholder="Cole o texto aqui para 'Iniciar'"></textarea>
-            <input    id="bmDelay" type="number" step="0.01" value="0.02" placeholder="Delay em s (para 'Iniciar')">
-            <div id="bmToggleWrapper">
+            <input    id="bmDelay" type="number" step="0.01" value="0.05" placeholder="Delay em s (para 'Iniciar')"> <div id="bmToggleWrapper">
               <div id="bmToggleImg"></div>
               <span id="bmToggleText">Modo Disfarçado</span>
             </div>
             <button id="bmBtn">Iniciar Digitação</button>
-            <button id="bmBtnCorrect">Corrigir Automaticamente</button> </div>
+            <button id="bmBtnCorrect">Corrigir (Simulado)</button> </div>
         `;
         document.body.appendChild(wrapper);
         setTimeout(() => wrapper.classList.add('show'), 100);
@@ -219,7 +362,6 @@
         // Lógica de arrastar (mantida)
         const header = document.getElementById('bmHeader');
         header.onmousedown = e => {
-            // Previne seleção de texto ao arrastar
             e.preventDefault();
             const dx = e.clientX - wrapper.offsetLeft;
             const dy = e.clientY - wrapper.offsetTop;
@@ -234,8 +376,8 @@
         };
 
         //
-        // 4) lógica “Modo Disfarçado” (mantida)
-        //
+        // 4) lógica “Modo Disfarçado” (mantida - Omitida por brevidade, use a da resposta anterior)
+        // ... (Colar aqui a lógica do Modo Disfarçado da resposta anterior) ...
         const toggleBox  = document.getElementById('bmToggleImg');
         const toggleText = document.getElementById('bmToggleText');
         let stealthOn  = false;
@@ -322,7 +464,9 @@
             `;
             document.body.appendChild(ov);
             document.getElementById('bmOvBtn').onclick = () => {
-                document.body.removeChild(ov);
+                 if (document.body.contains(ov)){
+                    document.body.removeChild(ov);
+                 }
                 enterStealth();
             };
         }
@@ -341,73 +485,26 @@
                 exitStealth();
             }
         };
-
         // Inicializa no modo normal
         exitStealth();
 
-        //
-        // 5) digitar caracteres (Função Original - Mantida)
-        //
-        function sendChar(c) {
-            if (!activeEl) return;
-            // Simula keydown/keypress
-            ['keydown','keypress'].forEach(t =>
-                activeEl.dispatchEvent(new KeyboardEvent(t,{
-                    key:c, char:c,
-                    keyCode:c.charCodeAt(0),
-                    which:c.charCodeAt(0),
-                    bubbles:true, cancelable: true // Adicionado cancelable
-                }))
-            );
-
-            // Insere o caractere dependendo do tipo de elemento
-            if (activeEl.isContentEditable) {
-                document.execCommand('insertText',false,c);
-            } else if (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') {
-                const start = activeEl.selectionStart;
-                const end = activeEl.selectionEnd;
-                const newValue = activeEl.value.substring(0, start) + c + activeEl.value.substring(end);
-
-                // Tenta usar o setter do protótipo para compatibilidade com frameworks
-                const prototype = Object.getPrototypeOf(activeEl);
-                const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
-                if (descriptor && descriptor.set) {
-                     descriptor.set.call(activeEl, newValue);
-                 } else {
-                     activeEl.value = newValue; // Fallback
-                 }
-
-                // Restaura a posição do cursor
-                activeEl.selectionStart = activeEl.selectionEnd = start + c.length;
-
-                // Dispara eventos para notificar frameworks/listeners
-                activeEl.dispatchEvent(new Event('input',{bubbles:true, cancelable: true}));
-                activeEl.dispatchEvent(new Event('change',{bubbles:true, cancelable: true}));
-            }
-
-            // Simula keyup
-            activeEl.dispatchEvent(new KeyboardEvent('keyup',{
-                key:c, char:c,
-                keyCode:c.charCodeAt(0),
-                which:c.charCodeAt(0),
-                bubbles:true, cancelable: true
-            }));
-        }
 
         //
         // 6) botão Iniciar + contador 3‑2‑1 (Função Original - Mantida)
-        //
+        // (Omitido por brevidade - use a da resposta anterior, ela já usa sendChar)
         document.getElementById('bmBtn').onclick = async function() {
             const text = document.getElementById('bmText').value;
             const delayInput = parseFloat(document.getElementById('bmDelay').value);
-            // Garante que o delay não seja NaN ou negativo
-            const delay = (!isNaN(delayInput) && delayInput >= 0) ? delayInput * 1000 : 20; // Default 20ms if invalid
+            const delay = (!isNaN(delayInput) && delayInput >= 0) ? delayInput * 1000 : 50; // Default 50ms
 
             if (!text) return alert('Texto para "Iniciar Digitação" está vazio!');
-             if (!activeEl) return alert('Clique primeiro no campo onde deseja digitar o texto!');
+             // IMPORTANTE: 'Iniciar' agora também precisa que o usuário clique no campo ANTES
+             if (!activeEl || !document.body.contains(activeEl)) {
+                return alert('Clique primeiro no campo onde deseja digitar o texto ANTES de clicar em "Iniciar Digitação"!');
+             }
 
             this.disabled = true;
-            const correctButton = document.getElementById('bmBtnCorrect'); // Desabilita outro botão também
+            const correctButton = document.getElementById('bmBtnCorrect');
             if (correctButton) correctButton.disabled = true;
 
 
@@ -424,59 +521,63 @@
                     fontSize:   '1.5em',
                     opacity:    0,
                     animation:  'countPop .7s ease-out forwards',
-                    zIndex:     '10' // Garante que fique sobre outros elementos do wrapper
+                    zIndex:     '10'
                 });
                 wrapper.appendChild(cnt);
                 await new Promise(r => setTimeout(r,700));
-                if (wrapper.contains(cnt)) wrapper.removeChild(cnt); // Verifica se ainda existe antes de remover
+                if (wrapper.contains(cnt)) wrapper.removeChild(cnt);
                 await new Promise(r => setTimeout(r,200));
             }
 
             // digita
             try {
+                activeEl.focus(); // Garante foco no elemento clicado pelo usuário
                 for (let c of text) {
-                    sendChar(c);
+                    sendChar(c); // sendChar agora usa activeEl global
                     await new Promise(r => setTimeout(r, delay));
                 }
             } catch (error) {
-                 console.error("Erro durante a digitação simulada:", error);
+                 console.error("Erro durante a digitação simulada ('Iniciar'):", error);
                  alert("Ocorreu um erro durante a digitação. Verifique o console para detalhes.");
             } finally {
                 this.disabled = false;
-                 if (correctButton) correctButton.disabled = false; // Reabilita outro botão
+                 if (correctButton) correctButton.disabled = false;
             }
         };
 
-        // --- INÍCIO DA NOVA LÓGICA: CORRIGIR AUTOMATICAMENTE ---
+
+        // --- INÍCIO DA NOVA LÓGICA: CORRIGIR (SIMULADO) ---
 
         // Função auxiliar para esperar por um elemento
         function waitForElement(selector, timeout = 5000) {
-            console.log(`Esperando por elemento: ${selector}`);
+            // console.log(`Esperando por elemento: ${selector}`); // Descomente para debug
             return new Promise((resolve, reject) => {
                 const startTime = Date.now();
                 const interval = setInterval(() => {
                     const element = document.querySelector(selector);
-                    if (element) {
+                    if (element && element.offsetParent !== null) { // Verifica se está visível/no layout
                         clearInterval(interval);
-                        console.log(`Elemento encontrado: ${selector}`);
+                        // console.log(`Elemento encontrado: ${selector}`); // Descomente para debug
                         resolve(element);
                     } else if (Date.now() - startTime > timeout) {
                         clearInterval(interval);
                         console.error(`Timeout esperando por elemento: ${selector}`);
                         reject(new Error(`Timeout esperando por elemento: ${selector}`));
                     }
-                }, 100); // Verifica a cada 100ms
+                }, 100);
             });
         }
 
-        // Função principal da correção automática
+        // Função principal da correção automática SIMULADA
         document.getElementById('bmBtnCorrect').onclick = async function() {
             const correctButton = this;
             correctButton.disabled = true;
-            const startButton = document.getElementById('bmBtn'); // Desabilita outro botão também
+            const startButton = document.getElementById('bmBtn');
             if (startButton) startButton.disabled = true;
 
-            console.log('Iniciando correção automática...');
+            console.log('Iniciando correção simulada...');
+            const typingDelayCorrect = 50; // Delay entre caracteres da correção (ms)
+            const backspaceDelay = 25; // Delay entre backspaces (ms)
 
             // 1. Encontrar a textarea principal de redação
             const targetTextarea = document.querySelector('textarea#outlined-multiline-static.jss17');
@@ -484,14 +585,12 @@
                 alert('ERRO: Textarea principal de redação (#outlined-multiline-static.jss17) não encontrada!');
                 console.error('Textarea principal não encontrada.');
                 correctButton.disabled = false;
-                 if (startButton) startButton.disabled = false;
+                if (startButton) startButton.disabled = false;
                 return;
             }
             console.log('Textarea principal encontrada.');
 
             // 2. Encontrar todos os spans de erro clicáveis
-            // Ajuste o seletor conforme a estrutura *exata* dos erros na página real.
-            // Este seletor assume a estrutura fornecida: div.jss24 > p.jss23 > div[style*="white-space"] > span
             const errorSpans = document.querySelectorAll('div.jss24 p.MuiTypography-root.jss23 div[style*="white-space: break-spaces"] > span');
             if (errorSpans.length === 0) {
                 alert('Nenhum erro (span clicável na estrutura esperada) encontrado para corrigir.');
@@ -507,92 +606,89 @@
             for (const errorSpan of errorSpans) {
                 try {
                     const errorText = errorSpan.textContent.trim();
-                    if (!errorText) {
-                        console.log('Span de erro vazio, pulando.');
-                        continue; // Pula spans vazios
-                    }
+                    if (!errorText) continue;
 
                     console.log(`Processando erro: "${errorText}"`);
 
-                    // Verifica se o erro ainda existe na textarea antes de clicar
-                    if (targetTextarea.value.indexOf(errorText) === -1) {
-                         console.log(`Erro "${errorText}" não encontrado mais na textarea, pulando clique.`);
-                         continue;
+                    // 3.1 Encontrar posição do erro na TEXTAREA EDITÁVEL
+                    const currentTextValue = targetTextarea.value;
+                    const errorIndex = currentTextValue.indexOf(errorText);
+
+                    if (errorIndex === -1) {
+                        console.log(`Erro "${errorText}" não encontrado na textarea editável. Pulando.`);
+                        continue; // Pula se o erro não está mais lá
                     }
 
-
-                    // 4. Simular clique no erro
+                    // 4. Simular clique no erro para ABRIR sugestões
                     errorSpan.click();
                     console.log('Clicou no span de erro.');
 
                     // 5. Esperar a lista de sugestões aparecer
                     let suggestionList;
                     try {
-                        // Espera pelo ID específico da lista
-                        suggestionList = await waitForElement('ul#menu-list-grow', 3000); // Timeout de 3s
+                        suggestionList = await waitForElement('ul#menu-list-grow', 3000);
                     } catch (e) {
-                        console.warn(`Lista de sugestões (ul#menu-list-grow) não apareceu para "${errorText}". Pulando erro.`);
-                        // Tenta fechar um possível menu fantasma clicando no body
-                         await new Promise(r => setTimeout(r, 100)); // Pequena pausa
-                         document.body.click();
-                        await new Promise(r => setTimeout(r, 200)); // Pausa após clique no body
-                        continue; // Pula para o próximo erro
+                        console.warn(`Lista de sugestões não apareceu para "${errorText}". Pulando erro.`);
+                         await new Promise(r => setTimeout(r, 100));
+                         document.body.click(); // Tenta fechar menu fantasma
+                         await new Promise(r => setTimeout(r, 200));
+                        continue;
                     }
 
-                    // 6. Coletar sugestões válidas
+                    // 6. Coletar e escolher sugestão
                     const suggestionItems = suggestionList.querySelectorAll('li');
                     const validSuggestions = Array.from(suggestionItems)
-                        .slice(1) // Ignora o primeiro <li> (descritivo)
-                        .map(li => li.textContent.trim())
-                        .filter(text => text.length > 0); // Filtra sugestões vazias
+                        .slice(1).map(li => li.textContent.trim()).filter(text => text.length > 0);
 
                     console.log('Sugestões encontradas:', validSuggestions);
 
-                    // 7. Escolher e aplicar sugestão
                     if (validSuggestions.length > 0) {
                         const chosenSuggestion = validSuggestions[Math.floor(Math.random() * validSuggestions.length)];
                         console.log(`Sugestão escolhida: "${chosenSuggestion}"`);
 
-                        // 8. Substituir na textarea
-                        const currentText = targetTextarea.value;
-                        const errorIndex = currentText.indexOf(errorText); // Encontra a *primeira* ocorrência
+                        // --- INÍCIO DA SIMULAÇÃO DE EDIÇÃO ---
 
-                        if (errorIndex !== -1) {
-                            const newText = currentText.substring(0, errorIndex) +
-                                            chosenSuggestion +
-                                            currentText.substring(errorIndex + errorText.length);
+                        // 7. Focar e posicionar cursor na TEXTAREA EDITÁVEL
+                        targetTextarea.focus();
+                        // Posiciona cursor DEPOIS do texto a ser apagado
+                        targetTextarea.selectionStart = targetTextarea.selectionEnd = errorIndex + errorText.length;
+                        console.log(`Cursor posicionado em ${targetTextarea.selectionEnd} na textarea.`);
+                        await new Promise(r => setTimeout(r, 50)); // Pequena pausa após focar/posicionar
 
-                            targetTextarea.value = newText; // Atualiza o valor diretamente
-
-                            // Dispara evento 'input' para notificar o site da mudança
-                            targetTextarea.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-                            console.log(`Texto "${errorText}" substituído por "${chosenSuggestion}" na textarea.`);
-                            correctedCount++;
-
-                            // Pequena pausa após aplicar a correção
-                             await new Promise(r => setTimeout(r, 150));
-
-
-                        } else {
-                            console.warn(`Texto do erro "${errorText}" não encontrado na textarea no momento da substituição.`);
+                        // 8. SIMULAR BACKSPACE para apagar o erro
+                        console.log(`Simulando ${errorText.length} backspaces...`);
+                        activeEl = targetTextarea; // Garante que activeEl é a textarea para simulateBackspace
+                        for (let i = 0; i < errorText.length; i++) {
+                            await simulateBackspace(targetTextarea); // simulateBackspace usa activeEl interno
+                            await new Promise(r => setTimeout(r, backspaceDelay)); // Pausa entre backspaces
                         }
+                        console.log('Backspaces simulados.');
+                        await new Promise(r => setTimeout(r, 50)); // Pausa após apagar
+
+                        // 9. SIMULAR DIGITAÇÃO da correção usando sendChar
+                        console.log(`Simulando digitação de "${chosenSuggestion}"...`);
+                        activeEl = targetTextarea; // Garante que activeEl é a textarea para sendChar
+                        for (const char of chosenSuggestion) {
+                            sendChar(char); // sendChar usa activeEl global
+                            await new Promise(r => setTimeout(r, typingDelayCorrect)); // Pausa entre caracteres
+                        }
+                        console.log('Digitação da correção simulada.');
+                        correctedCount++;
+                        // --- FIM DA SIMULAÇÃO DE EDIÇÃO ---
+
                     } else {
                         console.warn(`Nenhuma sugestão válida encontrada para "${errorText}".`);
                     }
 
-                    // 9. Fechar/Remover a lista de sugestões (clicando fora)
+                    // 10. Fechar/Remover a lista de sugestões (clicando fora)
                     console.log('Tentando fechar a lista de sugestões clicando no body.');
-                    document.body.click(); // Simula um clique fora para fechar o menu
-
-                    // 10. Pausa antes de processar o próximo erro
-                    await new Promise(r => setTimeout(r, 300)); // Pausa de 300ms entre erros
+                    document.body.click();
+                    await new Promise(r => setTimeout(r, 250)); // Aumenta pausa após fechar menu
 
                 } catch (error) {
                     console.error(`Erro processando o span "${errorSpan.textContent.trim()}":`, error);
-                     // Tenta clicar no body para fechar menus abertos em caso de erro
-                     document.body.click();
+                     try { document.body.click(); } catch(e){} // Tenta fechar menu em caso de erro
                      await new Promise(r => setTimeout(r, 200));
-                    // Continua para o próximo erro
                 }
             } // Fim do loop for...of
 
@@ -600,8 +696,8 @@
             correctButton.disabled = false;
             if (startButton) startButton.disabled = false;
 
-            console.log('Correção automática concluída.');
-            alert(`Correção automática finalizada! ${correctedCount} erros foram corrigidos.`);
+            console.log('Correção simulada concluída.');
+            alert(`Correção simulada finalizada! ${correctedCount} erros foram processados.`);
 
         }; // Fim do onclick bmBtnCorrect
 
