@@ -233,7 +233,7 @@
         wrapper.style.background = '#fff';
         header.style.background  = '#0f4665';
         header.style.color       = '#fff';
-        wrapper.style.color      = '#000';
+        wrapper.style.color      = '#000'; 
         wrapper.querySelectorAll('textarea,input').forEach(i => {
           i.style.background = '#eee';
           i.style.color      = '#000';
@@ -243,7 +243,7 @@
           b.style.background = '#0f4665';
           b.style.color      = '#fff';
         });
-        toggleText.style.color = '#000';
+        toggleText.style.color = '#fff';
         wrapper.addEventListener('mouseleave', hideUI);
         document.addEventListener('mousemove', showUI);
       }
