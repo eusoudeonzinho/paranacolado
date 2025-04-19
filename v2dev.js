@@ -456,17 +456,21 @@
             correctButton.disabled = false; // Reabilita o outro botão
         };
 
-        // --- LÓGICA DO BOTÃO "Corrigir Automaticamente" ---
-
-        // Função auxiliar para esperar um elemento aparecer
-        async function waitForElement(selector, timeout = 5000) {
+      // Função auxiliar para esperar um elemento aparecer
+        async function waitForElement(selector, context = document, timeout = 5000) {
             const startTime = Date.now();
             while (Date.now() - startTime < timeout) {
-                const element = document.querySelector(selector);
-                if (element) return element;
+                const element = context.querySelector(selector);
+                if (element) {
+                    // Verifica se o elemento está visível (opcional, mas pode ajudar)
+                    const rect = element.getBoundingClientRect();
+                    if (rect.width > 0 && rect.height > 0) {
+                        return element;
+                    }
+                }
                 await new Promise(resolve => setTimeout(resolve, 100)); // Verifica a cada 100ms
             }
-            console.warn(`Elemento "${selector}" não encontrado após ${timeout}ms`);
+            console.warn(`Elemento "${selector}" não encontrado ou não visível após ${timeout}ms`);
             return null;
         }
 
@@ -475,19 +479,25 @@
             this.disabled = true;
             bmBtn.disabled = true; // Desabilita o outro botão
 
-            // 1. Encontrar a área de texto principal
-            const mainTextArea = document.getElementById('outlined-multiline-static');
+            // 1. Encontrar a área de texto principal CORRETAMENTE
+            // Usando a classe específica da textarea da redação
+            const mainTextArea = document.querySelector('textarea.jss17'); // SELETOR AJUSTADO
             if (!mainTextArea) {
-                alert('Erro: Textarea principal (#outlined-multiline-static) não encontrado!');
-                this.disabled = false;
-                bmBtn.disabled = false;
-                return;
+                // Tenta o ID como fallback, caso a classe mude, mas avisa sobre duplicidade
+                console.warn("Textarea com classe 'jss17' não encontrada. Tentando por ID (pode pegar o elemento errado se houver IDs duplicados)...");
+                mainTextArea = document.getElementById('outlined-multiline-static');
+                 if (!mainTextArea || mainTextArea.tagName !== 'TEXTAREA') {
+                    alert('Erro: Textarea principal da redação não encontrada (nem por classe jss17, nem por ID)! Verifique os seletores no script.');
+                    this.disabled = false;
+                    bmBtn.disabled = false;
+                    return;
+                 }
+                 alert('Aviso: Textarea encontrada por ID, mas este ID pode estar duplicado na página. A correção pode não funcionar como esperado.');
             }
-            console.log("Textarea principal encontrado.");
+            console.log("Textarea principal encontrada:", mainTextArea);
 
             // 2. Encontrar todos os spans de erro clicáveis
-            // Ajuste o seletor se a estrutura for mais específica (ex: se tiverem uma classe própria)
-            const errorSpans = document.querySelectorAll('div.jss24 span');
+            const errorSpans = document.querySelectorAll('div.jss24 span'); // Mantém o seletor original para os spans
             if (errorSpans.length === 0) {
                 alert('Nenhum erro (span dentro de div.jss24) encontrado para corrigir.');
                 this.disabled = false;
@@ -496,16 +506,23 @@
             }
             console.log(`Encontrados ${errorSpans.length} erros potenciais.`);
 
-            let correctionsMade = 0;
+            let correctionsApplied = 0;
             let errorsSkipped = 0;
 
             // 3. Iterar sobre cada erro
             for (const span of errorSpans) {
-                try {
-                    const originalErrorText = span.textContent.trim();
-                    if (!originalErrorText) continue; // Pula spans vazios
+                // Verifica se o span tem algum conteúdo ou atributo que o marque como erro real
+                // (Pode ser necessário ajustar isso se houver spans não-clicáveis dentro de jss24)
+                if (!span.offsetParent) { // Heurística simples: pula spans não visíveis/renderizados
+                    console.log("Pulando span não visível:", span);
+                    continue;
+                }
 
-                    console.log(`Processando erro: "${originalErrorText}"`);
+                try {
+                    // O texto do span não é mais necessário para a substituição
+                    // const originalErrorText = span.textContent.trim();
+                     console.log("Processando erro no span:", span);
+
 
                     // Garante que o span esteja visível (scroll se necessário)
                      span.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -516,74 +533,69 @@
                     console.log("Span clicado.");
 
                     // 5. Aguardar a lista de sugestões (UL) aparecer
-                    // O seletor da lista é 'ul#menu-list-grow' conforme a descrição
-                    const suggestionList = await waitForElement('ul#menu-list-grow', 2000); // Espera até 2s
+                    const suggestionList = await waitForElement('ul#menu-list-grow', document, 2000); // Espera até 2s
 
                     if (!suggestionList) {
-                        console.warn(`Lista de sugestões não encontrada para "${originalErrorText}". Pulando.`);
+                        console.warn(`Lista de sugestões não encontrada para o erro clicado. Pulando.`);
                         errorsSkipped++;
                          // Tenta fechar qualquer menu residual clicando fora
-                         document.body.click();
-                         await new Promise(r => setTimeout(r, 150));
+                         try { document.body.click(); await new Promise(r => setTimeout(r, 150)); } catch {}
                         continue; // Pula para o próximo erro
                     }
                     console.log("Lista de sugestões encontrada.");
 
-                    // 6. Coletar as sugestões (LI's)
+                    // 6. Coletar os elementos <li> das sugestões
                     const listItems = suggestionList.querySelectorAll('li');
-                    // Assume que a primeira <li> pode ser descritiva e as seguintes são as reais
-                    const suggestions = Array.from(listItems)
-                                             .slice(1) // Pula a primeira <li> (ajuste se necessário)
-                                             .map(li => li.textContent.trim())
-                                             .filter(text => text && text !== originalErrorText); // Filtra vazios e a própria palavra original
-
-                    if (suggestions.length === 0) {
-                        console.warn(`Nenhuma sugestão válida encontrada para "${originalErrorText}". Pulando.`);
-                        errorsSkipped++;
-                         // Fecha o menu atual antes de ir para o próximo
-                         document.body.click(); // Simula clique fora para fechar
-                         await new Promise(r => setTimeout(r, 150)); // Pequena pausa
-                        continue;
-                    }
-                    console.log("Sugestões:", suggestions);
-
-                    // 7. Escolher uma sugestão aleatoriamente
-                    const chosenSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-                    console.log(`Sugestão escolhida: "${chosenSuggestion}"`);
-
-                    // 8. Substituir no textarea principal
-                    const currentText = mainTextArea.value;
-                     // Tenta substituir de forma mais segura, considerando contexto se possível
-                     // Por enquanto, substitui a primeira ocorrência encontrada
-                     if (currentText.includes(originalErrorText)) {
-                        mainTextArea.value = currentText.replace(originalErrorText, chosenSuggestion);
-                        console.log("Texto substituído no textarea.");
-                        correctionsMade++;
-
-                        // Disparar evento de input para que o React/Vue/etc. perceba a mudança
-                        mainTextArea.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-                        mainTextArea.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-                     } else {
-                         console.warn(`Texto "${originalErrorText}" não encontrado no textarea para substituição.`);
+                    if (listItems.length <= 1) { // Assume que a primeira é descritiva
+                         console.warn("Nenhuma sugestão válida (<li>) encontrada na lista (ou apenas o descritivo). Pulando.");
                          errorsSkipped++;
-                     }
+                         // Fecha o menu atual antes de ir para o próximo
+                          try { document.body.click(); await new Promise(r => setTimeout(r, 150)); } catch {}
+                         continue;
+                    }
 
-                    // 9. Fechar o menu de sugestões (importante!)
-                    // Simula um clique no próprio textarea ou no body para fechar o pop-up
-                     mainTextArea.click(); // Ou document.body.click();
-                     console.log("Tentativa de fechar menu de sugestões.");
-                     await new Promise(r => setTimeout(r, 250)); // Pausa para UI atualizar e fechar menu
+                     // Pega os elementos <li> que representam sugestões reais (ignora o primeiro)
+                     const suggestionLiElements = Array.from(listItems).slice(1);
+
+                    // 7. Escolher um elemento <li> de sugestão aleatoriamente
+                    const chosenLiElement = suggestionLiElements[Math.floor(Math.random() * suggestionLiElements.length)];
+                    const chosenSuggestionText = chosenLiElement.textContent.trim();
+                    console.log(`Elemento <li> escolhido:`, chosenLiElement, `Texto: "${chosenSuggestionText}"`);
+
+                    // 8. SIMULAR CLIQUE NA SUGESTÃO ESCOLHIDA (<li>)
+                    if (chosenLiElement) {
+                        chosenLiElement.click();
+                        console.log(`Clique simulado na sugestão <li>: "${chosenSuggestionText}"`);
+                        correctionsApplied++;
+
+                        // Espera um pouco para a UI do site processar a correção
+                        await new Promise(r => setTimeout(r, 400)); // Aumentar se necessário
+                    } else {
+                        console.warn("Não foi possível encontrar o elemento <li> para clicar. Pulando.");
+                        errorsSkipped++;
+                         // Tenta fechar o menu mesmo assim
+                          try { document.body.click(); await new Promise(r => setTimeout(r, 150)); } catch {}
+                    }
+
+                    // 9. Não precisamos mais fechar o menu explicitamente aqui,
+                    // pois o clique na sugestão <li> geralmente fecha o menu.
+                    // Se ele persistir, a tentativa de clique no próximo span ou o body.click
+                    // em caso de erro pode ajudar.
+
 
                 } catch (error) {
-                    console.error(`Erro ao processar o erro "${span.textContent.trim()}":`, error);
+                    console.error(`Erro ao processar um erro:`, error, "Span:", span);
                     errorsSkipped++;
                      // Tenta fechar menus residuais em caso de erro
                       try { document.body.click(); await new Promise(r => setTimeout(r, 150)); } catch {}
                 }
+                 // Pequena pausa entre processar cada erro
+                 await new Promise(r => setTimeout(r, 200));
+
             } // Fim do loop for
 
             console.log("Correção automática concluída.");
-            alert(`Correção finalizada!\nCorreções realizadas: ${correctionsMade}\nErros pulados/não corrigidos: ${errorsSkipped}`);
+            alert(`Correção finalizada!\nCliques em sugestões: ${correctionsApplied}\nErros pulados/não corrigidos: ${errorsSkipped}`);
 
             this.disabled = false;
             bmBtn.disabled = false; // Reabilita o outro botão
