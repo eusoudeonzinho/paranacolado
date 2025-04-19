@@ -14,7 +14,7 @@
     splash.innerHTML = `
       <img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/>
       <div id="bmSplashTxt1">Paraná Colado</div>
-      <div id="bmSplashTxt2">V1</div>
+      <div id="bmSplashTxt2">https://eusoudeonzinho.github.io/paranacolado/</div>
     `;
     document.body.appendChild(splash);
   
@@ -228,7 +228,7 @@
       const wrapper = document.createElement('div');
       wrapper.id = 'bmWrapper';
       wrapper.innerHTML = `
-        <div id="bmHeader">Paraná Colado V1</div>
+        <div id="bmHeader">Redação Paraná V2</div>
         <div id="bmCount"></div>
         <div id="bmContent">
           <textarea id="bmText" placeholder="Digite seu texto"></textarea>
@@ -266,7 +266,7 @@
       const toggleText = document.getElementById('bmToggleText');
       let stealthState = false;
       let stealthSeen  = false;
-      const imgOff     = 'https://i.imgur.com/a000adcb.png';
+      const imgOff     = 'https://i.imgur.com/aY8Kd2B.png';
       const imgOn      = 'https://i.imgur.com/k41QpMa.png';
       toggleImg.src = imgOff;
   
