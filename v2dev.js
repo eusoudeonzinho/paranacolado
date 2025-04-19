@@ -155,7 +155,7 @@
   splash.innerHTML = `
     <img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/>
     <div id="bmSplashTxt1">Paraná Tools - Redação</div>
-    <div id="bmSplashTxt2">paranacolado.github.io</div>
+    <div id="bmSplashTxt2">paranatools.github.io</div>
   `;
   document.body.appendChild(splash);
 
