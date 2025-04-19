@@ -14,7 +14,7 @@
   splash.innerHTML = `
     <img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/>
     <div id="bmSplashTxt1">Paraná Colado</div>
-    <div id="bmSplashTxt2">V1</div>
+    <div id="bmSplashTxt2">V2</div>
   `;
   document.body.appendChild(splash);
 
