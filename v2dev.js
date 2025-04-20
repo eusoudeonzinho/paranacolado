@@ -81,7 +81,7 @@
         <div id="bmSplashContent">
              <img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/>
              <div id="bmSplashTitle">Paraná Tools</div>
-             <div id="bmSplashSubtitle">AutoEditor Simulado</div>
+             <div id="bmSplashSubtitle">Redação Paraná V2</div>
              <div id="bmLoadingBar"><div id="bmLoadingProgress"></div></div>
         </div>
         <div id="bmSplashBgEffect"></div>
