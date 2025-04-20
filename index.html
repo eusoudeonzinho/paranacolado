@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <!-- Configuração do Site -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Paraná Colado</title>
+        
+        <!-- Estilização do Site -->
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <!-- Estruturação do Site -->
+    <body>
+        <!-- Barra de Navegação -->
+        <div class="nav-bar">
+            <div>
+                <img src="imgs/icon.png" alt="Icone Paraná Colado">
+                <h2>Paraná Tools</h2>
+            </div>
+
+            <div>
+                <a href="#script-v1">Paraná Colado V1</a>
+                <a href="#script-v2">Paraná Colado V2</a>
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal da Página -->
+        <div class="content">
+            <div id="introduction-div">
+                <div>
+                    <div>
+                        <img src="imgs/paranacolado-v2.png" alt="">
+                        <p class="description">Versão 1.0</p>
+                    </div>
+    
+                    <div>
+                        <h1>Escrever cansa...</h1>
+                        <p class="jump-text">
+                            Vamos se gabar para aquele professor chato que não acredita em você?</p>
+                    </div>
+                </div>
+    
+                <div>
+                    <div>
+                        <h1>Manda um CTRL C + CTRL V</h1>
+                        <p class="jump-text">
+                            E do resto, pode deixar que a gente cuida de tudo!</p>
+                    </div>
+    
+                    <div>
+                        <img src="imgs/paranacolado-v1.png" alt="">
+                        <p class="description">Versão 2.0</p>
+                    </div>
+                </div>
+            </div>
+    
+            <div id="script-v1">
+                <div>
+                    <img src="imgs/paranacolado-v1pastebin.png" alt="">
+                </div>
+
+                <div>
+                    <h1>VERSÃO 1</h1>
+                    <div class="jump-text">
+                        <p>Adora uma adrenalina ou quer tomar bronca do seu professor em sala de aula?</p>
+                        <p class="description">(Ou talvez só queira uma versão simplificada do script)</p>
+                    </div>
+                    
+                    <div class="get-script-box">
+                        <button class="toggle-btn">Acessar</button>
+                        <a class="link-input hidden"
+                        href="javascript:fetch('https://raw.githubusercontent.com/paranacolado/paranacolado.github.io/refs/heads/main/v1.js').then(t=>t.text()).then(eval);"
+                        draggable="true">
+                            Script Bookmarklet V1
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <div id="script-v2">
+                <div>
+                    <h1>VERSÃO 2</h1>
+                    <p class="jump-text">Perfeita para usar nos computadores da escola! Possui o modo "stealth", onde ela se camufla no site do GOV.PR.</p>
+                    
+                    <div class="get-script-box">
+                        <button class="toggle-btn">Acessar</button>
+                        <a class="link-input hidden"
+                        href="javascript:(async()=>{const url='https://raw.githubusercontent.com/paranatools/paranatools.github.io/refs/heads/main/v2.js';try{const r=await fetch(url);if(!r.ok)throw Error(r.status+' '+r.statusText);const js=await r.text();eval(js);}catch(e){alert('Erro ao carregar o script:\n'+e);} })();"
+                        draggable="true">
+                            Script Bookmarklet V2
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <img src="imgs/paranacolado-v2pastebin.png" alt="">
+                </div>
+            </div>
+
+            <div id="footer">
+                <h1>Tudo 100% grátis e aberto!</h1>
+                <div>
+                    <div>
+                        <h2>Como funciona?</h2>
+                        <p>
+                            O Paraná Colado não é de forma alguma um malware.
+                            Ele não tem a intenção de roubar seus dados.
+                            Seu funcionamento é simples:
+                            ele apenas simula a digitação do seu texto,
+                            reescrevendo-o de forma automatizada.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h2>Como posso usar?</h2>
+                        <p>
+                            Infelizmente, o script não
+                            funciona para celular. No
+                            computador, é muito simples,
+                            basta acessar um dos scripts,
+                            selecionar tudo e mover para a
+                            barra de favoritos. Simples, não
+                            é?
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <h2>Barra de Favoritos</h2>
+                        <p>
+                            Para mostrar a barra de favoritos, depende do seu
+                            navegador. Navegadores base como Google Chrome,
+                            Opera GX ou Firefox usam o atalho CTRL + Shift + B
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <h1>Ainda precisa de ajuda?</h1>
+                        <p>Aqui está um vídeo do YouTube para te ajudar :)</p>
+                        <iframe 
+                            width="820" height="461"
+                            src="https://www.youtube.com/embed/4t-6C0iQ0N0"
+                            title="COMO COLOCAR BARRA de FAVORITOS no GOOGLE CHROME - PC e NOTEBOOK"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="width: 50vw;">
+                        <h1>Obrigado por ter vindo até aqui.</h1>
+                        <p>O utilitário aqui disponibilizado não possui qualquer intenção de
+                            prejudicar, zombar ou desmerecer a plataforma "Redação Paraná" ou
+                            seus idealizadores.</p>
+                        
+                        <p>Trata-se de uma ferramenta criada com fins educacionais, voltada para
+                            demonstrar falhas ou limitações da interface atual da plataforma, bem
+                            como facilitar a experiência dos estudantes que desejam praticar ou
+                            produzir seus textos com maior agilidade e conforto.</p>
+                        
+                        <p>Nosso foco está em melhorar o acesso à escrita e incentivar o
+                            aprendizado, respeitando sempre os objetivos da plataforma oficial.
+                            Esperamos que, ao destacar essas necessidades, possamos contribuir
+                            de forma construtiva para um ambiente educacional mais acessível e
+                            eficiente para todos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="parana-tools-div">
+                <img src="imgs/icon.png" alt="Icone Paraná Colado">
+                <p>Paraná Tools</p>
+            </div>
+        </div>
+
+        <script src="scripts/open_script.js"></script>
+        <script src="scripts/anim_script.js"></script>
+    </body>
+</html>
