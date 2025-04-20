@@ -231,7 +231,7 @@
         if (document.body.contains(splash)) { splash.remove(); }
         const wrapper = document.createElement('div'); wrapper.id = 'bmWrapper';
         wrapper.innerHTML = `
-            <div id="bmHeader"><span>Paraná Colado V1.12</span><span id="bmMinimizeBtn" title="Minimizar/Expandir">-</span></div> <div id="bmContent">
+            <div id="bmHeader"><span>Paraná Tecla V2</span><span id="bmMinimizeBtn" title="Minimizar/Expandir">-</span></div> <div id="bmContent">
                 <textarea id="bmText" placeholder="Cole o texto aqui..." class="bmFadeInSlideUp" style="animation-delay: 0.1s;"></textarea>
                 <input id="bmDelay" type="number" step="0.001" value="0.001" min="0.001" placeholder="Delay (s)" class="bmFadeInSlideUp" style="animation-delay: 0.15s;">
                 <div id="bmToggleWrapper" class="bmFadeInSlideUp" style="animation-delay: 0.2s;"><div id="bmToggleImg"></div> <span id="bmToggleText">Modo Disfarçado</span></div>
@@ -341,7 +341,7 @@
 
                 // --- Busca e Correção dos Spans ---
                 if (!initialChecksOk || !targetTextarea) { throw new Error("Não foi possível iniciar a correção (falha nas verificações)."); }
-                console.log("Procurando spans de erro..."); if (correctionMode === 'advanced' && correctionSplashEl) { const h2 = correctionSplashEl.querySelector('h2'); if (h2) h2.textContent = 'Procurando erros...'; }
+                console.log("Procurando spans de erro..."); if (correctionMode === 'advanced' && correctionSplashEl) { const h2 = correctionSplashEl.querySelector('h2'); if (h2) h2.textContent = '.'; }
                 const errorSpans = Array.from(document.querySelectorAll('span[style*="background-color: rgb"][style*="cursor: pointer"]')); let correctedCount = 0; let skippedCount = 0; let errorCount = 0;
                 if (errorSpans.length === 0) {
                      console.log('Nenhum span de erro encontrado.');
@@ -442,7 +442,7 @@
                      const wantAIReview = await showAIReviewOverlayStyled();
                      if (wantAIReview) {
                          console.log("Usuário optou pela revisão da IA.");
-                         const aiStatusMessages = [ "Processando seu texto...", "Montando bloquinhos...", "Procurando ferramentas...", "Re-digitando...", "Paraná Tools informa: 'Oie :3'" ];
+                         const aiStatusMessages = [ "Processando seu texto...", "Montando bloquinhos...", "Procurando ferramentas...", "Re-digitando... (Esse processo leva em torno de 1 a 2 minutos)", "Paraná Tools informa: 'Oie :3'" ];
                          let currentMessageIndex = 0;
                          loadingUIData = showAILoadingOverlayStyled(aiStatusMessages[0]); // Mostra UI e pega refs
                          updateAIProgressBar(loadingUIData.progressBarElement, 5); // Inicia progresso
