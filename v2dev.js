@@ -137,7 +137,7 @@
         const wrapper = document.createElement('div'); wrapper.id = 'bmWrapper';
         wrapper.innerHTML = `
             <div id="bmHeader">
-                 <span>Paraná Colado V1</span>
+                 <span>Paraná Colado V2</span>
                  <span id="bmMinimizeBtn" title="Minimizar/Expandir">-</span>
             </div>
             <div id="bmContent">
