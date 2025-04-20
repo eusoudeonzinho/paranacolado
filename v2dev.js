@@ -116,7 +116,7 @@
 
         const wrapper = document.createElement('div'); wrapper.id = 'bmWrapper';
         wrapper.innerHTML = `
-            <div id="bmHeader">Paraná Colado V1 - AutoEditor Simulado</div>
+            <div id="bmHeader">Paraná Tecla V2</div>
             <div id="bmContent">
                 <textarea id="bmText" placeholder="Cole o texto aqui..."></textarea>
                 <input id="bmDelay" type="number" step="0.001" value="0.001" min="0.001" placeholder="Delay (s)">
