@@ -5,15 +5,68 @@
   // guarda último elemento clicado (CRUCIAL para ambas as funções)
   let activeEl = null;
   document.addEventListener('mousedown', e => {
-      console.log('mousedown detected, activeEl set to:', e.target);
-      activeEl = e.target;
+    // Ignora cliques dentro da própria UI do script para não perder o foco do target real
+    if (e.target.closest('#bmWrapper') || e.target.closest('#bmCustomAlertOverlay')) {
+        return;
+    }
+    console.log('mousedown detected, activeEl set to:', e.target);
+    activeEl = e.target;
   }, true); // Use capturing phase
+
+  // --- FUNÇÃO DE ALERTA PERSONALIZADO ---
+  function showCustomAlert(message) {
+    // Remove alerta anterior se existir
+    const existingAlert = document.getElementById('bmCustomAlertOverlay');
+    if (existingAlert) {
+      existingAlert.remove();
+    }
+
+    // Cria Overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'bmCustomAlertOverlay';
+
+    // Cria Caixa de Alerta
+    const box = document.createElement('div');
+    box.id = 'bmCustomAlertBox';
+
+    // Cria Mensagem
+    const msg = document.createElement('p');
+    msg.id = 'bmCustomAlertMessage';
+    msg.textContent = message;
+
+    // Cria Botão OK
+    const btn = document.createElement('button');
+    btn.id = 'bmCustomAlertButton';
+    btn.textContent = 'OK';
+    btn.onclick = () => {
+      box.classList.remove('show');
+      overlay.classList.remove('show');
+      // Espera a animação de saída terminar para remover
+      setTimeout(() => {
+        if (document.body.contains(overlay)) {
+          document.body.removeChild(overlay);
+        }
+      }, 300); // Mesmo tempo da transição CSS
+    };
+
+    // Monta a estrutura
+    box.appendChild(msg);
+    box.appendChild(btn);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    // Força o reflow para garantir que a animação de entrada funcione
+    requestAnimationFrame(() => {
+        overlay.classList.add('show');
+        box.classList.add('show');
+    });
+  }
+
 
   // --- FUNÇÕES DE SIMULAÇÃO DE TECLADO (MODIFICADAS/NOVAS) ---
 
   // Função para simular eventos de teclado genéricos
   function dispatchKeyEvent(target, eventType, key, keyCode, charCode = 0) {
-      // Define charCode com base no keyCode se for um caractere imprimível e charCode não for fornecido
       let effectiveCharCode = charCode;
       if (!effectiveCharCode && key && key.length === 1) {
           effectiveCharCode = key.charCodeAt(0);
@@ -21,14 +74,13 @@
 
       const event = new KeyboardEvent(eventType, {
           key: key,
-          code: `Key${key.toUpperCase()}`, // Aproximação, pode não ser exato para todas as teclas
+          code: `Key${key.toUpperCase()}`,
           keyCode: keyCode,
           which: keyCode,
-          charCode: eventType === 'keypress' ? effectiveCharCode : 0, // charCode apenas para keypress
+          charCode: eventType === 'keypress' ? effectiveCharCode : 0,
           bubbles: true,
           cancelable: true
       });
-      // console.log(`Dispatching ${eventType}: key=${key}, keyCode=${keyCode}, charCode=${effectiveCharCode} on`, target);
       target.dispatchEvent(event);
   }
 
@@ -46,76 +98,60 @@
 
       // Lógica manual de exclusão se for INPUT ou TEXTAREA
       if ((targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA')) {
-         if (start === end && start > 0) { // Se for cursor (não seleção) e não estiver no início
-             const currentValue = targetElement.value;
-             const newValue = currentValue.substring(0, start - 1) + currentValue.substring(end);
-
-             // Tenta usar setter do protótipo para compatibilidade com frameworks
-             const prototype = Object.getPrototypeOf(targetElement);
-             const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
-             if (descriptor && descriptor.set) {
-                 descriptor.set.call(targetElement, newValue);
-             } else {
-                 targetElement.value = newValue; // Fallback
-             }
-
-             // Ajusta o cursor
-             targetElement.selectionStart = targetElement.selectionEnd = start - 1;
-
-             // Dispara eventos para notificar frameworks/listeners da mudança
-             targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-             targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-         } else if (start !== end) {
-             // Se houver texto selecionado, Backspace o deletaria
+          if (start === end && start > 0) { // Se for cursor (não seleção) e não estiver no início
+              const currentValue = targetElement.value;
+              const newValue = currentValue.substring(0, start - 1) + currentValue.substring(end);
+              const prototype = Object.getPrototypeOf(targetElement);
+              const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+              if (descriptor && descriptor.set) {
+                  descriptor.set.call(targetElement, newValue);
+              } else {
+                  targetElement.value = newValue; // Fallback
+              }
+              targetElement.selectionStart = targetElement.selectionEnd = start - 1;
+              targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+              targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+          } else if (start !== end) {
               const currentValue = targetElement.value;
               const newValue = currentValue.substring(0, start) + currentValue.substring(end);
-               // (Repete a lógica de atualização de valor e disparo de eventos acima)
-                const prototype = Object.getPrototypeOf(targetElement);
-                const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
-                if (descriptor && descriptor.set) {
-                    descriptor.set.call(targetElement, newValue);
-                } else {
-                    targetElement.value = newValue; // Fallback
-                }
-                targetElement.selectionStart = targetElement.selectionEnd = start; // Coloca cursor no início da antiga seleção
-                targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-                targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-         }
+              const prototype = Object.getPrototypeOf(targetElement);
+              const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+              if (descriptor && descriptor.set) {
+                  descriptor.set.call(targetElement, newValue);
+              } else {
+                  targetElement.value = newValue; // Fallback
+              }
+              targetElement.selectionStart = targetElement.selectionEnd = start;
+              targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+              targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+          }
       } else if (targetElement.isContentEditable) {
-           // Para contentEditable, 'delete' pode funcionar melhor que backspace simulado programaticamente
-           document.execCommand('delete', false, null);
-       }
+          document.execCommand('delete', false, null);
+      }
 
       dispatchKeyEvent(targetElement, 'keyup', 'Backspace', 8);
-      // Pequena pausa após cada backspace simulado
-      await new Promise(r => setTimeout(r, 1)); // Ajuste o delay conforme necessário (25ms)
+      await new Promise(r => setTimeout(r, 5)); // Reduzi um pouco o delay do backspace para parecer mais fluido
   }
 
   // Função para SIMULAR digitação de um caractere (REUTILIZADA E VERIFICADA)
   function sendChar(c) {
-      // A função agora depende que activeEl seja definido CORRETAMENTE antes de ser chamada
       if (!activeEl) {
           console.warn("sendChar chamada, mas activeEl é nulo. Clique em um campo primeiro.");
           return;
       }
       if (!document.body.contains(activeEl)) {
            console.warn("sendChar chamada, mas activeEl não está mais no DOM.");
-           return; // Evita erros se o elemento foi removido
+           return;
       }
 
-
-      const targetElement = activeEl; // Usa a variável global
-      targetElement.focus(); // Garante foco
+      const targetElement = activeEl;
+      targetElement.focus();
 
       const keyCode = c.charCodeAt(0);
 
-      // 1. keydown
       dispatchKeyEvent(targetElement, 'keydown', c, keyCode);
+      dispatchKeyEvent(targetElement, 'keypress', c, keyCode, keyCode);
 
-      // 2. keypress (apenas para caracteres imprimíveis)
-      dispatchKeyEvent(targetElement, 'keypress', c, keyCode, keyCode); // Passa charCode aqui
-
-      // 3. Inserir o caractere
       if (targetElement.isContentEditable) {
           document.execCommand('insertText', false, c);
       } else if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA') {
@@ -123,8 +159,6 @@
           const end = targetElement.selectionEnd;
           const currentValue = targetElement.value;
           const newValue = currentValue.substring(0, start) + c + currentValue.substring(end);
-
-          // Tenta usar setter do protótipo
           const prototype = Object.getPrototypeOf(targetElement);
           const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
           if (descriptor && descriptor.set) {
@@ -132,24 +166,17 @@
           } else {
               targetElement.value = newValue; // Fallback
           }
-
-          // Ajusta o cursor para depois do caractere inserido
           targetElement.selectionStart = targetElement.selectionEnd = start + c.length;
-
-          // Dispara eventos input/change
           targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
           targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
       }
 
-      // 4. keyup
       dispatchKeyEvent(targetElement, 'keyup', c, keyCode);
   }
 
-  // --- RESTANTE DO CÓDIGO (Splash, CSS, UI, Modo Disfarçado - sem grandes mudanças) ---
+  // --- RESTANTE DO CÓDIGO (Splash, CSS, UI, Modo Disfarçado) ---
 
-  //
   // 1) SPLASH INICIAL
-  //
   const splash = document.createElement('div');
   splash.id = 'bmSplash';
   splash.innerHTML = `
@@ -159,10 +186,8 @@
   `;
   document.body.appendChild(splash);
 
-  //
-  // 2) CSS injetado (estilo KW-like + Estilo para novo botão)
-  // (CSS Omitido por brevidade - use o CSS da resposta anterior)
-      const css = `
+  // 2) CSS injetado (Com estilos do Alerta e Animações Refinadas)
+  const css = `
     /* === SPLASH === */
     #bmSplash {
       position: fixed; top:0; left:0;
@@ -171,18 +196,18 @@
       display:flex; flex-direction:column;
       align-items:center; justify-content:center;
       z-index:99999; overflow:hidden;
-      animation:fadeOut 1s forwards 3s;
+      animation:fadeOut 1s ease-out forwards 3s; /* Easing */
     }
     #bmSplashImg {
       width:200px;
-      animation:popIn .5s forwards, moveUp .5s forwards .8s;
+      animation:popIn .5s ease-out forwards, moveUp .5s ease-out forwards .8s; /* Easing */
     }
     #bmSplashTxt1, #bmSplashTxt2 {
       font-family:'Segoe UI Black',sans-serif;
       color:#fff; font-size:2em; opacity:0;
     }
-    #bmSplashTxt1 { animation:txt1Pop .5s forwards 1.3s }
-    #bmSplashTxt2 { animation:txt2Pop .5s forwards 1.8s }
+    #bmSplashTxt1 { animation:txt1Pop .5s ease-out forwards 1.3s } /* Easing */
+    #bmSplashTxt2 { animation:txt2Pop .5s ease-out forwards 1.8s } /* Easing */
     @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
     @keyframes moveUp { from{transform:translateY(0)} to{transform:translateY(-30px)} }
     @keyframes txt1Pop { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
@@ -196,12 +221,12 @@
       background:#1e1e1e;
       border:1px solid #333;
       border-radius:6px;
-      box-shadow:0 4px 10px rgba(0,0,0,.5);
-      font-family:'Segoe UI Black',sans-serif;
+      box-shadow:0 6px 15px rgba(0,0,0,.6); /* Sombra mais pronunciada */
+      font-family:'Segoe UI',sans-serif; /* Fonte mais padrão */
       color:#fff;
       opacity:0;
       transform:translateY(-20px) scale(.95);
-      transition:opacity .3s,transform .3s;
+      transition:opacity .3s ease-out, transform .3s ease-out; /* Easing */
       z-index:99998;
     }
     #bmWrapper.show {
@@ -211,92 +236,110 @@
     /* header */
     #bmHeader {
       cursor:move;
-      padding:8px 12px;
+      padding:10px 15px; /* Mais padding */
       background:#111;
       border-bottom:1px solid #333;
-      font-size:0.9em;
+      font-size:0.95em; /* Levemente maior */
+      font-weight: bold; /* Negrito */
       text-align:center;
       border-radius:6px 6px 0 0;
+      user-select: none; /* Evita selecionar texto ao arrastar */
     }
 
     /* conteúdo */
     #bmContent {
-      padding:12px;
+      padding:15px; /* Mais padding */
       background:#1b1b1b;
-      border-radius: 0 0 6px 6px; /* Garante borda arredondada inferior */
+      border-radius: 0 0 6px 6px;
     }
     #bmContent textarea,
     #bmContent input {
       width:100%;
-      margin-bottom:10px;
-      padding:8px;
-      font-size:0.95em;
+      margin-bottom:12px; /* Mais espaço */
+      padding:10px; /* Mais padding */
+      font-size:1em; /* Tamanho padrão */
       background:#2a2a2a;
-      border:1px solid #333;
+      border:1px solid #444; /* Borda levemente mais clara */
       border-radius:4px;
-      color:#fff;
-      box-sizing:border-box; /* Importante para padding não aumentar tamanho total */
+      color:#eee; /* Cor do texto mais clara */
+      box-sizing:border-box;
+      transition: border-color .2s ease-out, box-shadow .2s ease-out; /* Transição suave */
+    }
+    #bmContent textarea {
+        min-height: 80px; /* Altura mínima */
+        resize: vertical; /* Permitir redimensionar verticalmente */
     }
     #bmContent textarea:focus,
     #bmContent input:focus {
       outline:none;
-      border-color:#8A2BE2; /* Roxão */
-      box-shadow:0 0 6px rgba(138,43,226,.5);
+      border-color:#8A2BE2;
+      box-shadow:0 0 8px rgba(138,43,226,.6); /* Sombra mais suave */
     }
     /* Estilo comum para botões */
     #bmContent button {
       width:100%;
-      padding:8px;
-      margin-top: 5px; /* Adiciona espaço entre botões */
-      font-size:0.95em;
+      padding:10px; /* Mais padding */
+      margin-top: 8px;
+      font-size:1em;
+      font-weight: bold;
       background:transparent;
-      border:1px solid #8A2BE2; /* Roxão */
+      border:2px solid #8A2BE2; /* Borda mais grossa */
       border-radius:4px;
-      color:#8A2BE2; /* Roxão */
+      color:#8A2BE2;
       cursor:pointer;
-      transition:background .2s, color .2s, transform .2s;
-      box-sizing: border-box; /* Garante consistência de tamanho */
+      transition:background .2s ease-out, color .2s ease-out, transform .15s ease-out; /* Easing */
+      box-sizing: border-box;
     }
-     #bmContent button:disabled { /* Estilo para botão desabilitado */
-       cursor: not-allowed;
-       opacity: 0.6;
-       border-color: #555;
-       color: #555;
-     }
-     #bmContent button:not(:disabled):hover {
-      background:#8A2BE2; /* Roxão */
+    #bmContent button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      border-color: #555;
+      color: #555;
+      transform: scale(1); /* Evita scale no estado disabled */
+    }
+    #bmContent button:not(:disabled):hover {
+      background:#8A2BE2;
       color:#111;
-      transform:scale(1.03);
+      transform:scale(1.02); /* Efeito hover sutil */
     }
     #bmContent button:not(:disabled):active {
-      transform:scale(.97);
+      transform:scale(.98); /* Efeito clique sutil */
+      transition-duration: .1s; /* Resposta mais rápida no clique */
     }
 
     /* toggle “Modo Disfarçado” */
     #bmToggleWrapper {
       display:flex;
       align-items:center;
-      gap:8px;
-      margin-bottom:10px;
+      gap:10px; /* Mais espaço */
+      margin-bottom:15px; /* Mais espaço inferior */
+      cursor: pointer; /* Cursor de link no wrapper */
+      user-select: none;
     }
     #bmToggleImg {
-      width:14px; height:14px;
-      border:1px solid #8A2BE2; /* Roxão */
-      border-radius:2px;
+      width:16px; height:16px; /* Maior */
+      border:2px solid #8A2BE2; /* Mais grossa */
+      border-radius:3px;
       background:transparent;
-      cursor:pointer;
-      transition:background .2s;
+      transition:background .2s ease-out, border-color .2s ease-out; /* Easing */
+      flex-shrink: 0; /* Evita que encolha */
     }
+     #bmToggleWrapper:hover #bmToggleImg {
+         border-color: #A65FFC; /* Cor levemente mais clara no hover */
+     }
     #bmToggleText {
-      font-size:0.9em;
-      color:#fff;
-      user-select:none;
+      font-size:0.95em;
+      color:#ccc; /* Cor mais suave */
+      transition: color .2s ease-out;
     }
+     #bmToggleWrapper:hover #bmToggleText {
+         color: #fff; /* Texto branco no hover */
+     }
     /* contador 3-2-1 */
-    @keyframes countPop {
-      0%   { opacity:0; transform:scale(0.5) }
-      50%  { opacity:1; transform:scale(1.2) }
-      100% { opacity:0; transform:scale(1) }
+    @keyframes countPop { /* Animação mais suave */
+      0%   { opacity:0; transform:scale(0.6) translateY(10px); }
+      50%  { opacity:1; transform:scale(1.1) translateY(0); }
+      100% { opacity:0; transform:scale(1) translateY(-5px); }
     }
     /* overlay stealth */
     #bmOv {
@@ -306,178 +349,303 @@
       display:flex;flex-direction:column;
       align-items:center;justify-content:center;
       z-index:100000;
-      animation:ovFadeIn .4s forwards;
+      animation:ovFadeIn .4s ease-out forwards; /* Easing */
     }
     #bmOv img {
       max-width:70%;max-height:50%;
-      animation:popIn .5s forwards;
+      animation:popIn .5s ease-out forwards; /* Easing */
     }
-    #bmOv button { /* Estilo específico botão overlay */
-      margin-top:20px;
-      padding:8px 16px;
-      background:#3B6991;
+    #bmOv button {
+      margin-top:25px; /* Mais espaço */
+      padding:10px 20px; /* Mais padding */
+      background:#555; /* Fundo mais escuro */
       color:#fff;
       border:none;border-radius:4px;
-      font-size:0.95em;
+      font-size:1em;
+      font-weight: bold;
       cursor:pointer;
-      transition:transform .2s,background .2s;
-      width: auto; /* Botão overlay não precisa ser 100% */
+      transition:transform .2s ease-out, background .2s ease-out; /* Easing */
+      width: auto;
     }
     #bmOv button:hover {
-      background:#2e516e;
-      transform:scale(1.05);
+      background:#8A2BE2; /* Roxo no hover */
+      transform:scale(1.05); /* Efeito hover */
     }
     @keyframes ovFadeIn { from{opacity:0} to{opacity:1} }
+
+    /* === ALERTA PERSONALIZADO === */
+    #bmCustomAlertOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100001; /* Acima de outros elementos */
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+    }
+    #bmCustomAlertOverlay.show {
+        opacity: 1;
+    }
+    #bmCustomAlertBox {
+        background-color: #1e1e1e;
+        padding: 25px 30px; /* Mais padding interno */
+        border-radius: 8px; /* Bordas mais arredondadas */
+        border: 1px solid #444;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7); /* Sombra mais forte */
+        text-align: center;
+        color: #eee;
+        font-family: 'Segoe UI', sans-serif;
+        width: 90%;
+        max-width: 400px; /* Largura máxima */
+        transform: scale(0.8);
+        opacity: 0;
+        transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.2s ease-out; /* Easing com overshoot */
+    }
+    #bmCustomAlertOverlay.show #bmCustomAlertBox {
+        transform: scale(1);
+        opacity: 1;
+    }
+    #bmCustomAlertMessage {
+        margin: 0 0 20px 0; /* Espaço abaixo da mensagem */
+        font-size: 1.05em;
+        line-height: 1.6; /* Melhor espaçamento entre linhas */
+    }
+    #bmCustomAlertButton {
+        /* Reutiliza e adapta estilo do botão principal */
+        padding: 10px 25px; /* Padding horizontal maior */
+        font-size: 1em;
+        font-weight: bold;
+        background: transparent;
+        border: 2px solid #8A2BE2;
+        border-radius: 4px;
+        color: #8A2BE2;
+        cursor: pointer;
+        transition: background .2s ease-out, color .2s ease-out, transform .15s ease-out;
+        width: auto; /* Largura automática */
+        display: inline-block; /* Para centralizar se necessário */
+    }
+    #bmCustomAlertButton:hover {
+        background: #8A2BE2;
+        color: #111;
+        transform: scale(1.05);
+    }
+     #bmCustomAlertButton:active {
+      transform: scale(0.95);
+       transition-duration: .1s;
+    }
+
+    /* --- Estilos Modo Disfarçado --- */
+    #bmWrapper.stealth {
+        background: #f0f0f0;
+        border-color: #ccc;
+        color: #333; /* Cor do texto geral no modo stealth */
+        box-shadow: 0 4px 10px rgba(0,0,0,.2);
+    }
+    #bmWrapper.stealth #bmHeader {
+        background: #dcdcdc;
+        border-color: #ccc;
+        color: #333;
+    }
+     #bmWrapper.stealth #bmContent {
+         background: #e9e9e9;
+     }
+    #bmWrapper.stealth #bmContent textarea,
+    #bmWrapper.stealth #bmContent input {
+        background: #fff;
+        color: #222;
+        border-color: #bbb;
+    }
+     #bmWrapper.stealth #bmContent textarea:focus,
+    #bmWrapper.stealth #bmContent input:focus {
+        border-color: #6c8eef; /* Azul claro no foco */
+        box-shadow: 0 0 6px rgba(108, 142, 239, 0.5);
+    }
+    #bmWrapper.stealth #bmContent button {
+        background: #e0e0e0;
+        color: #555;
+        border-color: #aaa;
+    }
+    #bmWrapper.stealth #bmContent button:disabled {
+         border-color: #ccc;
+         color: #aaa;
+         background: #f0f0f0;
+         opacity: 0.7;
+    }
+     #bmWrapper.stealth #bmContent button:not(:disabled):hover {
+        background: #6c8eef; /* Azul claro no hover */
+        color: #fff;
+        border-color: #6c8eef;
+         transform: scale(1.02);
+    }
+      #bmWrapper.stealth #bmContent button:not(:disabled):active {
+         transform: scale(.98);
+     }
+    #bmWrapper.stealth #bmToggleWrapper #bmToggleText {
+        color: #555;
+    }
+    #bmWrapper.stealth #bmToggleWrapper:hover #bmToggleText {
+        color: #000;
+    }
+    #bmWrapper.stealth #bmToggleWrapper #bmToggleImg {
+        border-color: #aaa;
+    }
+    #bmWrapper.stealth #bmToggleWrapper:hover #bmToggleImg {
+        border-color: #555;
+    }
+    #bmWrapper.stealth #bmToggleWrapper #bmToggleImg.on {
+        background: #6c8eef; /* Azul claro quando ligado */
+        border-color: #6c8eef;
+    }
+
   `;
   const styleTag = document.createElement('style');
   styleTag.innerHTML = css;
   document.head.appendChild(styleTag);
 
-  //
   // 3) após splash, monta UI principal
-  //
   setTimeout(() => {
       if (document.body.contains(splash)) {
          document.body.removeChild(splash);
       }
 
-
       const wrapper = document.createElement('div');
       wrapper.id = 'bmWrapper';
-      // Adiciona o novo botão "Corrigir Automaticamente" no innerHTML
       wrapper.innerHTML = `
         <div id="bmHeader">Paraná Colado V1 - AutoEditor Simulado</div>
         <div id="bmContent">
-          <textarea id="bmText" placeholder="Cole o texto aqui para 'Iniciar'"></textarea>
-          <input    id="bmDelay" type="number" step="0.01" value="0.05" placeholder="Delay em s (para 'Iniciar')"> <div id="bmToggleWrapper">
+          <textarea id="bmText" placeholder="Cole o texto aqui..."></textarea>
+          <input id="bmDelay" type="number" step="0.01" value="0.03" placeholder="Delay (s)">
+          <div id="bmToggleWrapper">
             <div id="bmToggleImg"></div>
             <span id="bmToggleText">Modo Disfarçado</span>
           </div>
           <button id="bmBtn">Iniciar Digitação</button>
-          <button id="bmBtnCorrect">Corrigir Automaticamente</button> </div>
+          <button id="bmBtnCorrect">Corrigir Automaticamente</button>
+        </div>
       `;
       document.body.appendChild(wrapper);
-      setTimeout(() => wrapper.classList.add('show'), 100);
+      // Força reflow antes de adicionar a classe show para animação
+      requestAnimationFrame(() => {
+          wrapper.classList.add('show');
+      });
 
-      // Lógica de arrastar (mantida)
+
+      // Lógica de arrastar
       const header = document.getElementById('bmHeader');
+      let isDragging = false;
+      let offsetX, offsetY;
+
       header.onmousedown = e => {
-          e.preventDefault();
-          const dx = e.clientX - wrapper.offsetLeft;
-          const dy = e.clientY - wrapper.offsetTop;
-          document.onmousemove = ev => {
-              wrapper.style.left = ev.clientX - dx + 'px';
-              wrapper.style.top  = ev.clientY - dy + 'px';
-          };
-          document.onmouseup = () => {
-              document.onmousemove = null;
-              document.onmouseup   = null;
-          };
+          // Ignora se não for o botão esquerdo do mouse
+          if (e.button !== 0) return;
+          isDragging = true;
+          offsetX = e.clientX - wrapper.offsetLeft;
+          offsetY = e.clientY - wrapper.offsetTop;
+          wrapper.style.transition = 'none'; // Desabilita transição durante o drag
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
+          e.preventDefault(); // Previne seleção de texto no header
       };
 
-      //
-      // 4) lógica “Modo Disfarçado” (mantida - Omitida por brevidade, use a da resposta anterior)
-      // ... (Colar aqui a lógica do Modo Disfarçado da resposta anterior) ...
-      const toggleBox  = document.getElementById('bmToggleImg');
-      const toggleText = document.getElementById('bmToggleText');
-      let stealthOn  = false;
-      let firstTime  = false;
-      const imgOnBg  = '#8A2BE2';
-      const imgOffBg = 'transparent';
-      let rect; // Variável para guardar a posição do wrapper no modo disfarçado
+      function onMouseMove(ev) {
+          if (!isDragging) return;
+          wrapper.style.left = ev.clientX - offsetX + 'px';
+          wrapper.style.top = ev.clientY - offsetY + 'px';
+      }
+
+      function onMouseUp() {
+          if (!isDragging) return;
+          isDragging = false;
+          wrapper.style.transition = ''; // Reabilita transição
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      // 4) lógica “Modo Disfarçado”
+      const toggleWrapper = document.getElementById('bmToggleWrapper');
+      const toggleBox = document.getElementById('bmToggleImg');
+      let stealthOn = false;
+      let firstTimeStealth = true; // Renomeado para clareza
+      const imgOnBg = '#8A2BE2'; // Cor quando ligado (no modo normal)
+      const stealthImgOnBg = '#6c8eef'; // Cor quando ligado (no modo stealth)
+      let rect; // Posição do wrapper
 
       function enterStealth() {
-          // Muda aparência para 'disfarçada' (exemplo, pode customizar)
-          wrapper.style.background = '#f0f0f0';
-          header.style.background  = '#d0d0d0';
-          header.style.color       = '#333';
-          wrapper.style.color      = '#333'; // Cor do texto geral
-          wrapper.querySelectorAll('textarea,input').forEach(i => {
-              i.style.background = '#fff';
-              i.style.color      = '#000';
-              i.style.border     = '1px solid #ccc';
-          });
-           wrapper.querySelectorAll('button').forEach(b => {
-              // Adapta botões ao modo claro, mantendo funcionalidade visual
-               b.style.background = '#e0e0e0';
-               b.style.color      = '#555';
-               b.style.borderColor = '#aaa';
-           });
-          toggleText.style.color = '#555'; // Cor do texto do toggle
-          toggleBox.style.borderColor = '#aaa'; // Cor da borda do toggle box
-
+          wrapper.classList.add('stealth');
+          toggleBox.classList.add('on'); // Marca visualmente que está ligado
+          toggleBox.style.background = stealthImgOnBg; // Cor específica do modo stealth ligado
+          toggleBox.style.borderColor = stealthImgOnBg;
           wrapper.addEventListener('mouseleave', hideUI);
           document.addEventListener('mousemove', showUI);
+          // Esconde imediatamente se o mouse não estiver sobre ele ao ativar
+          setTimeout(() => {
+             if (!wrapper.matches(':hover')) {
+                 hideUI();
+             }
+          }, 50);
           console.log('Entered Stealth Mode');
       }
 
       function exitStealth() {
-          // Restaura aparência original (dark theme)
-          wrapper.style.background = '#1e1e1e';
-          header.style.background  = '#111';
-          header.style.color       = '#fff';
-          wrapper.style.color      = '#fff';
-           wrapper.querySelectorAll('textarea,input').forEach(i => {
-              i.style.background = '#2a2a2a';
-              i.style.color      = '#fff';
-              i.style.border     = '1px solid #333';
-          });
-           wrapper.querySelectorAll('button').forEach(b => {
-               b.style.background = 'transparent';
-               b.style.color      = '#8A2BE2';
-               b.style.borderColor = '#8A2BE2';
-           });
-          toggleText.style.color = '#fff';
-          toggleBox.style.borderColor = '#8A2BE2';
-
+          wrapper.classList.remove('stealth');
+          toggleBox.classList.remove('on');
+          toggleBox.style.background = 'transparent'; // Cor desligado modo normal
+          toggleBox.style.borderColor = imgOnBg; // Borda roxa modo normal
           wrapper.removeEventListener('mouseleave', hideUI);
           document.removeEventListener('mousemove', showUI);
-          wrapper.style.opacity       = 1;
+          wrapper.style.opacity = 1;
           wrapper.style.pointerEvents = 'auto';
-           console.log('Exited Stealth Mode');
+          console.log('Exited Stealth Mode');
       }
 
-      function hideUI() {
-          rect = wrapper.getBoundingClientRect(); // Atualiza posição ao esconder
-          wrapper.style.opacity       = 0;
+       function hideUI() {
+          if (!wrapper.classList.contains('stealth')) return; // Só esconde se estiver no modo stealth
+          rect = wrapper.getBoundingClientRect();
+          wrapper.style.opacity = 0;
           wrapper.style.pointerEvents = 'none';
-           console.log('UI Hidden');
+          // console.log('UI Hidden');
       }
+
       function showUI(ev) {
-          // Verifica se rect foi definido antes de usar
+          if (!wrapper.classList.contains('stealth')) return;
           if (rect &&
               ev.clientX >= rect.left && ev.clientX <= rect.right &&
-              ev.clientY >= rect.top  && ev.clientY <= rect.bottom
+              ev.clientY >= rect.top && ev.clientY <= rect.bottom
           ) {
-              wrapper.style.opacity       = 1;
+              wrapper.style.opacity = 1;
               wrapper.style.pointerEvents = 'auto';
-               console.log('UI Shown');
+              // console.log('UI Shown');
           }
       }
 
-      function showOverlay() {
+      function showStealthOverlay() {
           const ov = document.createElement('div');
           ov.id = 'bmOv';
           ov.innerHTML = `
-            <img src="https://i.imgur.com/RquEok4.gif"/> <p style="color: white; font-family: sans-serif; text-align: center; margin-top: 15px;">O Modo Disfarçado oculta a janela quando o mouse não está sobre ela.</p>
-            <button id="bmOvBtn">Entendido, Continuar</button>
+            <img src="https://i.imgur.com/RquEok4.gif"/>
+            <p style="color: #ddd; font-family: 'Segoe UI', sans-serif; text-align: center; margin-top: 15px; max-width: 80%;">O Modo Disfarçado oculta a janela quando o mouse não está sobre ela e muda a aparência para ser mais discreta.</p>
+            <button id="bmOvBtn">Entendido</button>
           `;
           document.body.appendChild(ov);
           document.getElementById('bmOvBtn').onclick = () => {
-               if (document.body.contains(ov)){
-                  document.body.removeChild(ov);
-               }
-              enterStealth();
+              if (document.body.contains(ov)){
+                 document.body.removeChild(ov);
+              }
+              enterStealth(); // Entra no modo stealth após fechar overlay
           };
       }
 
-      toggleBox.onclick = () => {
+      toggleWrapper.onclick = () => { // Listener no wrapper todo
           stealthOn = !stealthOn;
-          toggleBox.style.background = stealthOn ? imgOnBg : imgOffBg;
           if (stealthOn) {
-              if (!firstTime) {
-                  firstTime = true;
-                  showOverlay();
+              if (firstTimeStealth) {
+                  firstTimeStealth = false;
+                  showStealthOverlay();
               } else {
                   enterStealth();
               }
@@ -485,28 +653,26 @@
               exitStealth();
           }
       };
-      // Inicializa no modo normal
+      // Inicializa no modo normal (chama exitStealth para setar estilos iniciais)
       exitStealth();
 
 
-      //
-      // 6) botão Iniciar + contador 3‑2‑1 (Função Original - Mantida)
-      // (Omitido por brevidade - use a da resposta anterior, ela já usa sendChar)
+      // 6) botão Iniciar + contador 3-2-1
       document.getElementById('bmBtn').onclick = async function() {
           const text = document.getElementById('bmText').value;
           const delayInput = parseFloat(document.getElementById('bmDelay').value);
-          const delay = (!isNaN(delayInput) && delayInput >= 0) ? delayInput * 1000 : 5; // Default 50ms
+          // Delay padrão menor (30ms), mais realista
+          const delay = (!isNaN(delayInput) && delayInput >= 0) ? delayInput * 1000 : 30;
 
-          if (!text) return alert('Texto para "Iniciar Digitação" está vazio!');
-           // IMPORTANTE: 'Iniciar' agora também precisa que o usuário clique no campo ANTES
-           if (!activeEl || !document.body.contains(activeEl)) {
-              return alert('Clique primeiro no campo onde deseja digitar o texto ANTES de clicar em "Iniciar Digitação"!');
-           }
+          if (!text) return showCustomAlert('O campo de texto para digitar está vazio!');
+          if (!activeEl || !document.body.contains(activeEl)) {
+            return showCustomAlert('Clique primeiro no campo onde deseja digitar o texto ANTES de clicar em "Iniciar Digitação"!');
+          }
 
-          this.disabled = true;
+          const startButton = this;
           const correctButton = document.getElementById('bmBtnCorrect');
+          startButton.disabled = true;
           if (correctButton) correctButton.disabled = true;
-
 
           // contador estilizado
           for (let n = 3; n >= 1; n--) {
@@ -514,34 +680,37 @@
               cnt.textContent = n;
               Object.assign(cnt.style, {
                   position:   'absolute',
-                  top:        '50px',
-                  right:      '20px',
-                  fontFamily: 'Segoe UI Black',
+                  top:        '50%', // Centralizado verticalmente
+                  left:       '50%', // Centralizado horizontalmente
+                  transform:  'translate(-50%, -50%) scale(0.6)', // Começa menor e centralizado
+                  fontFamily: "'Segoe UI Black', sans-serif",
+                  fontWeight: 'bold',
                   color:      '#8A2BE2',
-                  fontSize:   '1.5em',
+                  fontSize:   '4em', // Maior
                   opacity:    0,
                   animation:  'countPop .7s ease-out forwards',
-                  zIndex:     '10'
+                  zIndex:     '10',
+                  pointerEvents: 'none' // Não interfere com cliques
               });
-              wrapper.appendChild(cnt);
+              wrapper.appendChild(cnt); // Adiciona ao wrapper, não ao header
               await new Promise(r => setTimeout(r,700));
               if (wrapper.contains(cnt)) wrapper.removeChild(cnt);
-              await new Promise(r => setTimeout(r,200));
+              await new Promise(r => setTimeout(r,150)); // Menor pausa entre números
           }
 
           // digita
           try {
-              activeEl.focus(); // Garante foco no elemento clicado pelo usuário
+              activeEl.focus();
               for (let c of text) {
-                  sendChar(c); // sendChar agora usa activeEl global
+                  sendChar(c);
                   await new Promise(r => setTimeout(r, delay));
               }
           } catch (error) {
-               console.error("Erro durante a digitação simulada ('Iniciar'):", error);
-               alert("Ocorreu um erro durante a digitação. Verifique o console para detalhes.");
+              console.error("Erro durante a digitação simulada ('Iniciar'):", error);
+              showCustomAlert("Ocorreu um erro durante a digitação. Verifique o console (F12) para detalhes técnicos.");
           } finally {
-              this.disabled = false;
-               if (correctButton) correctButton.disabled = false;
+              startButton.disabled = false;
+              if (correctButton) correctButton.disabled = false;
           }
       };
 
@@ -550,53 +719,69 @@
 
       // Função auxiliar para esperar por um elemento
       function waitForElement(selector, timeout = 5000) {
-          // console.log(`Esperando por elemento: ${selector}`); // Descomente para debug
           return new Promise((resolve, reject) => {
               const startTime = Date.now();
               const interval = setInterval(() => {
                   const element = document.querySelector(selector);
-                  if (element && element.offsetParent !== null) { // Verifica se está visível/no layout
+                  // Verifica se está visível e anexado ao DOM principal
+                  if (element && element.offsetParent !== null && document.body.contains(element)) {
                       clearInterval(interval);
-                      // console.log(`Elemento encontrado: ${selector}`); // Descomente para debug
                       resolve(element);
                   } else if (Date.now() - startTime > timeout) {
                       clearInterval(interval);
                       console.error(`Timeout esperando por elemento: ${selector}`);
                       reject(new Error(`Timeout esperando por elemento: ${selector}`));
                   }
-              }, 100);
+              }, 100); // Verifica a cada 100ms
           });
       }
 
       // Função principal da correção automática SIMULADA
       document.getElementById('bmBtnCorrect').onclick = async function() {
           const correctButton = this;
-          correctButton.disabled = true;
           const startButton = document.getElementById('bmBtn');
+          correctButton.disabled = true;
           if (startButton) startButton.disabled = true;
 
           console.log('Iniciando correção simulada...');
-          const typingDelayCorrect = 25; // Delay entre caracteres da correção (ms)
-          const backspaceDelay = 10; // Delay entre backspaces (ms)
+          const typingDelayCorrect = 15; // Delay entre caracteres da correção (mais rápido)
+          const backspaceDelay = 8;    // Delay entre backspaces (mais rápido)
+          const actionDelay = 150;     // Delay entre ações maiores (clique, espera, etc.)
 
           // 1. Encontrar a textarea principal de redação
-          const targetTextarea = document.querySelector('textarea#outlined-multiline-static.jss17');
-          if (!targetTextarea) {
-              alert('ERRO: Textarea principal de redação (#outlined-multiline-static.jss17) não encontrada!');
-              console.error('Textarea principal não encontrada.');
+          let targetTextarea;
+          try {
+              // Tenta um seletor mais genérico primeiro, depois o específico
+              targetTextarea = document.querySelector('textarea[aria-label*="editor"], textarea[placeholder*="redação"], textarea[id*="text"], textarea.editor, textarea#outlined-multiline-static.jss17');
+              if (!targetTextarea) {
+                   throw new Error('Textarea principal não encontrada com seletores comuns ou específicos.');
+              }
+              console.log('Textarea principal encontrada:', targetTextarea);
+          } catch (error) {
+              console.error(error);
+              showCustomAlert('ERRO: Não foi possível encontrar a área de texto principal da redação na página.');
               correctButton.disabled = false;
               if (startButton) startButton.disabled = false;
               return;
           }
-          console.log('Textarea principal encontrada.');
 
-          // 2. Encontrar todos os spans de erro clicáveis
-          const errorSpans = document.querySelectorAll('div.jss24 p.MuiTypography-root.jss23 div[style*="white-space: break-spaces"] > span');
+          // 2. Encontrar todos os spans de erro clicáveis (adaptar seletor se necessário)
+          // Tenta um seletor mais robusto que busca por spans com estilo específico ou dentro de divs com classes comuns de erro
+          const errorSelector = `
+              span[style*="border-bottom"],
+              span[class*="error"], span[class*="mistake"],
+              span[data-markjs], /* Comum em bibliotecas de highlight */
+              div[class*="suggestion"] span,
+              div.jss24 p.MuiTypography-root.jss23 div[style*="white-space: break-spaces"] > span /* Seletor original como fallback */
+          `;
+          const errorSpans = Array.from(document.querySelectorAll(errorSelector))
+                                .filter(span => span.offsetParent !== null && span.textContent.trim().length > 1); // Filtra visíveis e com texto
+
           if (errorSpans.length === 0) {
-              alert('Nenhum erro (span clicável na estrutura esperada) encontrado para corrigir.');
-              console.log('Nenhum span de erro encontrado com o seletor especificado.');
+              showCustomAlert('Nenhum erro destacado (visível e clicável) foi encontrado na página para corrigir.');
+              console.log('Nenhum span de erro encontrado com os seletores:', errorSelector);
               correctButton.disabled = false;
-               if (startButton) startButton.disabled = false;
+              if (startButton) startButton.disabled = false;
               return;
           }
           console.log(`Encontrados ${errorSpans.length} spans de erro potenciais.`);
@@ -604,73 +789,97 @@
           let correctedCount = 0;
           // 3. Iterar sobre cada erro
           for (const errorSpan of errorSpans) {
+              // Verifica se o span ainda está no DOM antes de processar
+              if (!document.body.contains(errorSpan)) {
+                  console.log('Span de erro removido do DOM, pulando.');
+                  continue;
+              }
+
               try {
                   const errorText = errorSpan.textContent.trim();
-                  if (!errorText) continue;
+                  if (!errorText || errorText.length < 2) continue; // Ignora textos muito curtos
 
                   console.log(`Processando erro: "${errorText}"`);
 
-                  // 3.1 Encontrar posição do erro na TEXTAREA EDITÁVEL
+                  // 3.1 Encontrar posição do erro na TEXTAREA ATUALIZADA
+                  // É crucial pegar o valor atual DENTRO do loop, pois ele muda
                   const currentTextValue = targetTextarea.value;
                   const errorIndex = currentTextValue.indexOf(errorText);
 
                   if (errorIndex === -1) {
-                      console.log(`Erro "${errorText}" não encontrado na textarea editável. Pulando.`);
-                      continue; // Pula se o erro não está mais lá
+                      console.warn(`Erro "${errorText}" não encontrado na textarea (pode já ter sido corrigido). Pulando.`);
+                      continue;
                   }
 
                   // 4. Simular clique no erro para ABRIR sugestões
                   errorSpan.click();
                   console.log('Clicou no span de erro.');
+                  await new Promise(r => setTimeout(r, actionDelay)); // Espera após clique
 
                   // 5. Esperar a lista de sugestões aparecer
-                  let suggestionList;
+                  // Seletor mais genérico para popups/menus
+                  const suggestionListSelector = `
+                      ul[role="menu"], div[role="tooltip"] ul,
+                      div[class*="suggestions"], div[id*="suggestions"],
+                      div[class*="popup"] ul, div[id*="popup"] ul,
+                      ul#menu-list-grow /* Fallback específico */
+                  `;
+                  let suggestionContainer;
                   try {
-                      suggestionList = await waitForElement('ul#menu-list-grow', 3000);
+                      suggestionContainer = await waitForElement(suggestionListSelector, 2500); // Timeout menor
                   } catch (e) {
-                      console.warn(`Lista de sugestões não apareceu para "${errorText}". Pulando erro.`);
-                       await new Promise(r => setTimeout(r, 100));
-                       document.body.click(); // Tenta fechar menu fantasma
-                       await new Promise(r => setTimeout(r, 200));
+                      console.warn(`Lista/Popup de sugestões não apareceu para "${errorText}" após clique. Tentando fechar e pular.`);
+                      try { document.body.click(); } catch(closeErr){} // Tenta fechar menu fantasma
+                      await new Promise(r => setTimeout(r, actionDelay));
                       continue;
                   }
 
-                  // 6. Coletar e escolher sugestão
-                  const suggestionItems = suggestionList.querySelectorAll('li');
+                  // 6. Coletar e escolher sugestão (dentro do container encontrado)
+                  // Busca por itens clicáveis (li, button, div com role option)
+                  const suggestionItems = suggestionContainer.querySelectorAll('li[role="menuitem"], button, div[role="option"], li:not([role])'); // Adiciona li sem role como fallback
                   const validSuggestions = Array.from(suggestionItems)
-                      .slice(1).map(li => li.textContent.trim()).filter(text => text.length > 0);
+                      // Pega o texto, prioriza aria-label ou data-suggestion se existir
+                      .map(item => (item.getAttribute('aria-label') || item.dataset.suggestion || item.textContent || '').trim())
+                      // Filtra sugestões vazias ou que sejam iguais ao erro original (ou "ignorar")
+                      .filter(text => text.length > 0 && text.toLowerCase() !== errorText.toLowerCase() && !text.toLowerCase().includes('ignorar'));
 
                   console.log('Sugestões encontradas:', validSuggestions);
 
                   if (validSuggestions.length > 0) {
-                      const chosenSuggestion = validSuggestions[Math.floor(Math.random() * validSuggestions.length)];
+                      // Dá preferência para a primeira sugestão, que geralmente é a melhor
+                      const chosenSuggestion = validSuggestions[0];
+                      // const chosenSuggestion = validSuggestions[Math.floor(Math.random() * validSuggestions.length)]; // Ou aleatória
                       console.log(`Sugestão escolhida: "${chosenSuggestion}"`);
 
                       // --- INÍCIO DA SIMULAÇÃO DE EDIÇÃO ---
-
-                      // 7. Focar e posicionar cursor na TEXTAREA EDITÁVEL
                       targetTextarea.focus();
-                      // Posiciona cursor DEPOIS do texto a ser apagado
-                      targetTextarea.selectionStart = targetTextarea.selectionEnd = errorIndex + errorText.length;
-                      console.log(`Cursor posicionado em ${targetTextarea.selectionEnd} na textarea.`);
-                      await new Promise(r => setTimeout(r, 50)); // Pequena pausa após focar/posicionar
+                      // Re-calcula o índice caso o texto tenha mudado ligeiramente
+                      const currentIndex = targetTextarea.value.indexOf(errorText);
+                      if (currentIndex === -1) {
+                           console.warn(`Erro "${errorText}" desapareceu antes da edição. Pulando.`);
+                           try { document.body.click(); } catch(closeErr){}
+                           await new Promise(r => setTimeout(r, actionDelay));
+                           continue;
+                      }
 
-                      // 8. SIMULAR BACKSPACE para apagar o erro
+                      targetTextarea.selectionStart = targetTextarea.selectionEnd = currentIndex + errorText.length;
+                      console.log(`Cursor posicionado em ${targetTextarea.selectionEnd} na textarea.`);
+                      await new Promise(r => setTimeout(r, 50));
+
                       console.log(`Simulando ${errorText.length} backspaces...`);
-                      activeEl = targetTextarea; // Garante que activeEl é a textarea para simulateBackspace
+                      activeEl = targetTextarea;
                       for (let i = 0; i < errorText.length; i++) {
-                          await simulateBackspace(targetTextarea); // simulateBackspace usa activeEl interno
-                          await new Promise(r => setTimeout(r, backspaceDelay)); // Pausa entre backspaces
+                          await simulateBackspace(targetTextarea);
+                          // O delay já está em simulateBackspace
                       }
                       console.log('Backspaces simulados.');
                       await new Promise(r => setTimeout(r, 50)); // Pausa após apagar
 
-                      // 9. SIMULAR DIGITAÇÃO da correção usando sendChar
                       console.log(`Simulando digitação de "${chosenSuggestion}"...`);
-                      activeEl = targetTextarea; // Garante que activeEl é a textarea para sendChar
+                      activeEl = targetTextarea; // Garante activeEl
                       for (const char of chosenSuggestion) {
-                          sendChar(char); // sendChar usa activeEl global
-                          await new Promise(r => setTimeout(r, typingDelayCorrect)); // Pausa entre caracteres
+                          sendChar(char);
+                          await new Promise(r => setTimeout(r, typingDelayCorrect));
                       }
                       console.log('Digitação da correção simulada.');
                       correctedCount++;
@@ -680,15 +889,15 @@
                       console.warn(`Nenhuma sugestão válida encontrada para "${errorText}".`);
                   }
 
-                  // 10. Fechar/Remover a lista de sugestões (clicando fora)
-                  console.log('Tentando fechar a lista de sugestões clicando no body.');
-                  document.body.click();
-                  await new Promise(r => setTimeout(r, 250)); // Aumenta pausa após fechar menu
+                  // 10. Fechar/Remover a lista de sugestões (clicando fora ou no próprio erro novamente)
+                  console.log('Tentando fechar a lista de sugestões...');
+                   try { document.body.click(); } catch(closeErr){} // Clique no body é mais genérico
+                  await new Promise(r => setTimeout(r, actionDelay)); // Pausa após tentar fechar
 
               } catch (error) {
-                  console.error(`Erro processando o span "${errorSpan.textContent.trim()}":`, error);
-                   try { document.body.click(); } catch(e){} // Tenta fechar menu em caso de erro
-                   await new Promise(r => setTimeout(r, 200));
+                  console.error(`Erro processando o span "${errorSpan?.textContent?.trim()}":`, error);
+                  try { document.body.click(); } catch(e){} // Tenta fechar menu em caso de erro
+                  await new Promise(r => setTimeout(r, actionDelay));
               }
           } // Fim do loop for...of
 
@@ -697,12 +906,16 @@
           if (startButton) startButton.disabled = false;
 
           console.log('Correção simulada concluída.');
-          alert(`Correção simulada finalizada! ${correctedCount} erros foram processados.`);
+          if (correctedCount > 0) {
+             showCustomAlert(`Correção simulada finalizada! ${correctedCount} erros foram processados e corrigidos.`);
+          } else {
+             showCustomAlert(`Correção simulada finalizada. Nenhum erro foi efetivamente corrigido (verifique o console para detalhes).`);
+          }
 
       }; // Fim do onclick bmBtnCorrect
 
       // --- FIM DA NOVA LÓGICA ---
 
-  }, 3500); // Fim do setTimeout principal
+  }, 3500); // Fim do setTimeout principal (tempo da splash)
 
 })(); // Fim da IIFE
