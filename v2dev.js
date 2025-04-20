@@ -35,205 +35,70 @@
     splash.innerHTML = `<div id="bmSplashContent"><img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/> <div id="bmSplashTitle">Paraná Tools</div> <div id="bmSplashSubtitle">Carregando...</div> <div id="bmLoadingBar"><div id="bmLoadingProgress"></div></div> </div> <div id="bmSplashBgEffect"></div>`;
     document.body.appendChild(splash);
 
-    // --- CSS INJETADO (Adicionado Dark Mode + Estilos de Toggle) ---
+    // --- CSS INJETADO (Adicionado Dark Mode para Dialog) ---
     const css = `
-        /* ... (Todo o CSS anterior mantido) ... */
+        /* ... (CSS anterior mantido) ... */
         #bmSplashBgEffect { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1; background: #000; opacity: 0; animation: bgFadeIn 1s forwards 0.2s; } #bmSplash { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:99999; overflow:hidden; animation: splashFadeOut 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards 3.5s; } #bmSplashContent { z-index: 2; display:flex; flex-direction:column; align-items:center; justify-content:center; transform: scale(0.8); opacity: 0; animation: contentPopIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.5s; } #bmSplashImg { width:180px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.5)); transform: translateY(20px); animation: logoFloat 1.5s ease-in-out infinite alternate 1.3s; } #bmSplashTitle, #bmSplashSubtitle { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#fff; text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); opacity: 0; } #bmSplashTitle { font-size: 2.5em; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px; animation: textFadeSlide 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 1.2s; } #bmSplashSubtitle { font-size: 1.2em; font-weight: 300; color: #ccc; animation: textFadeSlide 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 1.5s; } #bmLoadingBar { width: 220px; height: 6px; background-color: rgba(255, 255, 255, 0.2); border-radius: 3px; margin-top: 30px; overflow: hidden; opacity: 0; animation: textFadeSlide 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 1.8s; } #bmLoadingProgress { width: 0%; height: 100%; background: linear-gradient(90deg, #8A2BE2, #A040FF); border-radius: 3px; animation: loadingAnim 1.5s cubic-bezier(0.65, 0.05, 0.36, 1) forwards 2s; } @keyframes bgFadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes contentPopIn { from { opacity: 0; transform: scale(0.8) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } } @keyframes logoFloat { from { transform: translateY(20px); } to { transform: translateY(10px); } } @keyframes textFadeSlide { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } } @keyframes loadingAnim { from { width: 0%; } to { width: 100%; } } @keyframes splashFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
         #bmAlertOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100001; opacity: 0; transition: opacity 0.3s ease-out; pointer-events: none;} #bmAlertOverlay:has(#bmAlertBox.bmAlertPopIn) { pointer-events: auto; } #bmAlertBox { background: #1e1e1e; color: #fff; padding: 25px 30px; border-radius: 8px; border: 1px solid #333; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); min-width: 300px; max-width: 450px; text-align: center; font-family: 'Segoe UI', sans-serif; transform: scale(0.9); opacity: 0; } #bmAlertBox.bmAlertPopIn { animation: alertPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; } #bmAlertBox.bmAlertFadeOut { animation: alertFadeOut 0.3s ease-out forwards; } #bmAlertMessage { font-size: 1.1em; line-height: 1.5; margin: 0 0 20px 0; } #bmAlertCloseBtn { padding: 10px 25px; font-size: 1em; background: #8A2BE2; border: none; border-radius: 5px; color: #fff; cursor: pointer; transition: background 0.2s ease, transform 0.15s ease; font-weight: bold; } #bmAlertCloseBtn:hover { background: #7022b6; transform: scale(1.05); } #bmAlertCloseBtn:active { transform: scale(0.98); } @keyframes alertPopIn { from { opacity: 0; transform: scale(0.8) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } } @keyframes alertFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
         #bmWrapper { position:fixed; top:20px; right:20px; width:320px; border:1px solid #333; border-radius:8px; box-shadow:0 6px 15px rgba(0,0,0,.6); font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#fff; opacity:0; transform:translateX(30px) scale(0.95); transition:opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index:99998; overflow: hidden; background: linear-gradient(135deg, #1e1e1e, #151515, #1e1e1e); background-size: 200% 200%; animation: subtleGradient 15s ease infinite; } @keyframes subtleGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } } #bmWrapper.show { opacity:1; transform:translateX(0) scale(1); } #bmHeader { cursor:move; padding:10px 15px; background: rgba(17, 17, 17, 0.8); backdrop-filter: blur(2px); border-bottom:1px solid #333; font-size:0.95em; font-weight: bold; text-align:center; border-radius:8px 8px 0 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; } #bmContent { padding:15px; background:rgba(27, 27, 27, 0.8); backdrop-filter: blur(2px); border-radius: 0 0 8px 8px; } #bmContent textarea, #bmContent input[type="number"] { width:100%; margin-bottom:12px; padding:10px; font-size:1em; font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace; background:rgba(42, 42, 42, 0.9); border:1px solid #444; border-radius:5px; color:#eee; box-sizing:border-box; resize: vertical; transition: border-color 0.25s ease, box-shadow 0.25s ease; } #bmContent textarea { min-height: 80px; } #bmContent textarea:focus, #bmContent input[type="number"]:focus { outline:none; border-color:#8A2BE2; box-shadow:0 0 0 3px rgba(138, 43, 226, 0.4); }
         #bmContent button { width:100%; padding:10px; margin-top: 8px; font-size:1em; font-weight: bold; background:transparent; border:2px solid #8A2BE2; border-radius:5px; color:#8A2BE2; cursor:pointer; transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-sizing: border-box; } #bmContent button:disabled { cursor: not-allowed; opacity: 0.5; border-color: #555; color: #555; background: #2a2a2a; transform: none !important; box-shadow: none !important; } #bmContent button:not(:disabled):hover { background:#8A2BE2; color:#111; transform:translateY(-2px); box-shadow: 0 5px 10px rgba(138, 43, 226, 0.35); } #bmContent button:not(:disabled):active { transform:translateY(-1px) scale(0.99); box-shadow: 0 2px 5px rgba(138, 43, 226, 0.25); background: #7022b6; border-color: #7022b6; }
-
-        /* Estilos para Toggles (Disfarçado e Dark Mode) */
-        #bmToggleWrapper, #bmDarkModeToggleWrapper { display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor: pointer; padding: 5px; border-radius: 4px; transition: background-color 0.2s ease; }
-        #bmToggleWrapper:hover, #bmDarkModeToggleWrapper:hover { background-color: rgba(255, 255, 255, 0.05); }
-        #bmToggleImg, #bmDarkModeToggleImg { width:16px; height:16px; border:2px solid #8A2BE2; border-radius:3px; background:transparent; transition:background .2s ease, border-color 0.2s ease; display: flex; align-items: center; justify-content: center; flex-shrink: 0; /* Evita encolher */ }
-        #bmToggleImg.active, #bmDarkModeToggleImg.active { background: #8A2BE2; }
-        #bmToggleText, #bmDarkModeToggleText { font-size:0.95em; color:#ccc; user-select:none; line-height: 1.2; } /* Ajuste no line-height */
-
-        /* Countdown (Digitação) */
+        #bmToggleWrapper, #bmDarkModeToggleWrapper { display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor: pointer; padding: 5px; border-radius: 4px; transition: background-color 0.2s ease; } #bmToggleWrapper:hover, #bmDarkModeToggleWrapper:hover { background-color: rgba(255, 255, 255, 0.05); } #bmToggleImg, #bmDarkModeToggleImg { width:16px; height:16px; border:2px solid #8A2BE2; border-radius:3px; background:transparent; transition:background .2s ease, border-color 0.2s ease; display: flex; align-items: center; justify-content: center; flex-shrink: 0; } #bmToggleImg.active, #bmDarkModeToggleImg.active { background: #8A2BE2; } #bmToggleText, #bmDarkModeToggleText { font-size:0.95em; color:#ccc; user-select:none; line-height: 1.2; }
         .bmCountdownNumber { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); font-family: 'Segoe UI Black', sans-serif; color: #8A2BE2; font-size: 3em; opacity: 0; animation: countPopZoom 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 10; text-shadow: 0 0 10px rgba(138, 43, 226, 0.7); } @keyframes countPopZoom { 0% { opacity: 0; transform: translateX(-50%) scale(0.5) rotate(-15deg); } 60% { opacity: 1; transform: translateX(-50%) scale(1.1) rotate(5deg); } 100% { opacity: 0; transform: translateX(-50%) scale(1) rotate(0deg); } }
-        /* Countdown (Correção Automática) */
         .bmCorrectionCountdownNumber { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Segoe UI Black', sans-serif; color: #4ecdc4; font-size: 5em; opacity: 0; animation: correctionCountPop 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 100002; text-shadow: 0 0 15px rgba(78, 205, 196, 0.7); pointer-events: none; } @keyframes correctionCountPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6) rotate(10deg); } 60% { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(-3deg); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1) rotate(0deg); } }
-        /* Overlay Stealth (Mantido) */
         #bmOv { position:fixed;top:0;left:0; width:100%;height:100%; background:rgba(0,0,0,.9); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display:flex;flex-direction:column; align-items:center;justify-content:center; z-index:100000; opacity: 0; animation: ovFadeInSmooth 0.5s ease-out forwards; } #bmOvContent { opacity: 0; transform: translateY(20px); animation: ovContentSlideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 0.3s; text-align: center; } #bmOv img { max-width:60%; max-height:45%; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); } #bmOv p { color: #ddd; font-family: 'Segoe UI', sans-serif; text-align: center; margin-top: 20px; max-width: 400px; line-height: 1.5; } #bmOv button { margin-top:25px; padding: 10px 25px; font-size: 1em; background: #8A2BE2; border: none; border-radius: 5px; color: #fff; cursor: pointer; transition: background 0.2s ease, transform 0.15s ease; font-weight: bold; width: auto; } #bmOv button:hover { background:#7022b6; transform:scale(1.05); } #bmOv button:active { transform: scale(0.98); } @keyframes ovFadeInSmooth { from{opacity:0} to{opacity:1} } @keyframes ovContentSlideUp { from{opacity:0; transform: translateY(20px);} to{opacity:1; transform: translateY(0);} }
-        /* Estilos Modo Disfarçado (Claro) */
         #bmWrapper.stealth-mode { background: #f0f0f0; border-color: #ccc; color: #333; animation: none; } #bmWrapper.stealth-mode #bmHeader { background: #dcdcdc; border-color: #ccc; color: #333; } #bmWrapper.stealth-mode #bmContent { background: #e9e9e9; } #bmWrapper.stealth-mode textarea, #bmWrapper.stealth-mode input[type="number"] { background: #fff; border-color: #bbb; color: #222; } #bmWrapper.stealth-mode textarea:focus, #bmWrapper.stealth-mode input[type="number"]:focus { border-color: #666; box-shadow: 0 0 0 3px rgba(100, 100, 100, 0.2); } #bmWrapper.stealth-mode button { border-color: #888; color: #444; background: #e0e0e0; } #bmWrapper.stealth-mode button:disabled { border-color: #ccc; color: #999; background: #f0f0f0; } #bmWrapper.stealth-mode button:not(:disabled):hover { background: #ccc; color: #111; border-color: #777; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); } #bmWrapper.stealth-mode button:not(:disabled):active { background: #bbb; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); } #bmWrapper.stealth-mode #bmToggleWrapper:hover, #bmWrapper.stealth-mode #bmDarkModeToggleWrapper:hover { background-color: rgba(0, 0, 0, 0.05); } #bmWrapper.stealth-mode #bmToggleImg, #bmWrapper.stealth-mode #bmDarkModeToggleImg { border-color: #999; } #bmWrapper.stealth-mode #bmToggleImg.active, #bmWrapper.stealth-mode #bmDarkModeToggleImg.active { background: #777; border-color: #777; } #bmWrapper.stealth-mode #bmToggleText, #bmWrapper.stealth-mode #bmDarkModeToggleText { color: #555; }
 
         /* ============================== */
         /* === ESTILOS DARK MODE PÁGINA === */
         /* ============================== */
+        body.bm-dark-mode { --blue-light: #58a6ff; --green: #347d39; /* Verde mais escuro como base */ --white: #1c1c1c; --blue-dark: #c9d1d9; background-color: var(--white) !important; color: var(--blue-dark) !important; }
+        body.bm-dark-mode section#main, body.bm-dark-mode main { background-color: var(--white) !important; }
+        body.bm-dark-mode nav.sc-gEvEer { background-color: #151a21 !important; border-bottom: 1px solid #333; }
+        body.bm-dark-mode nav.sc-eqUAAy span.bar { background-color: var(--blue-dark) !important; }
+        body.bm-dark-mode .jss1, body.bm-dark-mode .jss3, body.bm-dark-mode .jss5, body.bm-dark-mode .jss6, body.bm-dark-mode .jss15, body.bm-dark-mode .jss17, body.bm-dark-mode .jss19, body.bm-dark-mode .jss20, body.bm-dark-mode .jss24, body.bm-dark-mode .jss30, body.bm-dark-mode .jss33, body.bm-dark-mode .jss38, body.bm-dark-mode .jss41, body.bm-dark-mode .jss51, body.bm-dark-mode .jss52, body.bm-dark-mode .jss53, body.bm-dark-mode .jss54, body.bm-dark-mode .jss55, body.bm-dark-mode .jss59, body.bm-dark-mode .jss60, body.bm-dark-mode div[style*="background-color: white"], body.bm-dark-mode div[style*="background-color: var(--white)"] { background-color: #22272e !important; color: var(--blue-dark) !important; border-color: #444 !important; }
+        body.bm-dark-mode p, body.bm-dark-mode h3, body.bm-dark-mode h4, body.bm-dark-mode h5, body.bm-dark-mode h6, body.bm-dark-mode label, body.bm-dark-mode div[variant="subtitle1"], body.bm-dark-mode span:not([style*="background-color"]), /* Evita sobrescrever spans coloridos */ body.bm-dark-mode .MuiTypography-root, body.bm-dark-mode .ql-editor { color: var(--blue-dark) !important; }
+        body.bm-dark-mode h3[style*="color: var(--blue-light)"], body.bm-dark-mode h6[style*="color: var(--blue-light)"] { color: var(--blue-light) !important; }
+        body.bm-dark-mode textarea.jss17, body.bm-dark-mode textarea.jss31, body.bm-dark-mode textarea#outlined-multiline-static { background-color: #181c21 !important; color: #c9d1d9 !important; border: 1px solid #444 !important; caret-color: #eee; }
+        body.bm-dark-mode textarea.jss17:focus, body.bm-dark-mode textarea.jss31:focus, body.bm-dark-mode textarea#outlined-multiline-static:focus { border-color: var(--blue-light) !important; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.3) !important; }
+        body.bm-dark-mode .jss19 input.MuiInputBase-input, body.bm-dark-mode .jss33 input.MuiInputBase-input { background-color: transparent !important; color: #c9d1d9 !important; border: none !important; } /* Input transparente no dark */
+        body.bm-dark-mode .jss19 .MuiOutlinedInput-notchedOutline, body.bm-dark-mode .jss33 .MuiOutlinedInput-notchedOutline { border-color: #444 !important; }
+        body.bm-dark-mode .jss19 .Mui-focused .MuiOutlinedInput-notchedOutline, body.bm-dark-mode .jss33 .Mui-focused .MuiOutlinedInput-notchedOutline { border-color: var(--blue-light) !important; box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.3) !important; }
+        body.bm-dark-mode button { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important; }
+        body.bm-dark-mode button[style*="background: white"] { background: #333a45 !important; color: var(--blue-light) !important; border-color: #555 !important; }
+        body.bm-dark-mode button[style*="background: white"]:hover { background: #444c56 !important; border-color: var(--blue-light) !important; }
+        body.bm-dark-mode button[style*="background: var(--green)"] { background: var(--green) !important; color: #fff !important; border-width: 0px !important; } /* Mantém verde original para ações primárias */
+        body.bm-dark-mode button[style*="background: var(--green)"]:hover { filter: brightness(1.1); }
+        body.bm-dark-mode button[style*="background: var(--blue-light)"] { background: var(--blue-light) !important; color: #111 !important; }
+        body.bm-dark-mode button.jss21, body.bm-dark-mode button.jss35 { background-color: transparent !important; color: var(--blue-light) !important; border: 1px solid var(--blue-light) !important; }
+        body.bm-dark-mode button.jss21:hover, body.bm-dark-mode button.jss35:hover { background-color: rgba(88, 166, 255, 0.1) !important; }
+        body.bm-dark-mode button.jss26, body.bm-dark-mode button.jss40 { background-color: #333a45 !important; color: #c9d1d9 !important; border: 1px solid #555 !important; }
+        body.bm-dark-mode button.jss26:hover, body.bm-dark-mode button.jss40:hover { background-color: #444c56 !important; }
+        body.bm-dark-mode button:disabled { background-color: #333 !important; color: #777 !important; opacity: 0.7 !important; border-color: #555 !important; }
+        body.bm-dark-mode .MuiPaper-root.MuiAccordion-root { background-color: #282e35 !important; color: var(--blue-dark) !important; }
+        body.bm-dark-mode .MuiAccordionSummary-root { border-bottom: 1px solid #444 !important; }
+        body.bm-dark-mode .MuiAccordionSummary-expandIcon { color: var(--blue-dark) !important; }
+        body.bm-dark-mode .jss42, body.bm-dark-mode .jss56 { color: #56d364 !important; }
+        /* Erros destacados - tornar texto legível */
+        body.bm-dark-mode span[style*="background-color"][style*="cursor: pointer"] { color: #111 !important; /* Texto escuro no fundo claro */ padding: 0.05em 0.1em; border-radius: 2px; }
+        body.bm-dark-mode span[style*="background-color: rgb(206, 242, 213)"] { background-color: rgba(206, 242, 213, 0.8) !important; } /* Ortografia */
+        body.bm-dark-mode span[style*="background-color: rgb(225, 182, 252)"] { background-color: rgba(225, 182, 252, 0.8) !important; } /* Semantica */
+        body.bm-dark-mode span[style*="background-color: rgb(237, 147, 50)"] { background-color: rgba(237, 147, 50, 0.7) !important; } /* Sintaxe */
+        body.bm-dark-mode span[style*="background-color: rgb(180, 187, 250)"] { background-color: rgba(180, 187, 250, 0.8) !important; } /* Outros */
+        /* Caixas de contagem de erros no Dialog */
+        body.bm-dark-mode .jss59 .jss60 { border: 1px solid #555; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); }
+        body.bm-dark-mode .jss59 .jss60 p { color: #111 !important; font-weight: bold; } /* Texto escuro nos contadores */
+        /* Dialog de Correção */
+        body.bm-dark-mode .MuiDialog-paper { background-color: #22272e !important; }
+        body.bm-dark-mode .MuiDialogTitle-root h2 { color: #eee !important; }
+        body.bm-dark-mode .MuiDialogContent-root { color: var(--blue-dark) !important; }
+        body.bm-dark-mode div[style*="background-color: var(--blue-light)"][style*="color: var(--white)"] { background-color: #151a21 !important; color: #eee !important; /* Header do Dialog */ }
 
-        body.bm-dark-mode {
-            --blue-light: #58a6ff; /* Azul mais claro para contraste */
-            --green: #56d364;      /* Verde mais claro */
-            --white: #1c1c1c;      /* Fundo principal escuro */
-            --blue-dark: #c9d1d9;  /* Texto principal claro */
-            /* Outras variáveis podem precisar ser definidas se usadas */
-
-            background-color: var(--white) !important;
-            color: var(--blue-dark) !important;
-        }
-
-        /* Estilos Gerais */
-        body.bm-dark-mode section#main,
-        body.bm-dark-mode main {
-             background-color: var(--white) !important;
-        }
-        body.bm-dark-mode nav.sc-gEvEer { /* Navbar superior */
-            background-color: #151a21 !important; /* Tom mais escuro */
-             border-bottom: 1px solid #333;
-        }
-        body.bm-dark-mode nav.sc-eqUAAy span.bar { /* Barras do menu hamburguer */
-             background-color: var(--blue-dark) !important;
-        }
-
-        /* Fundo Branco Geral (jss1, jss3, etc) */
-        body.bm-dark-mode .jss1,
-        body.bm-dark-mode .jss3,
-        body.bm-dark-mode .jss5, /* Container Titulo/Redação */
-        body.bm-dark-mode .jss6, /* Container lateral */
-        body.bm-dark-mode div[style*="background-color: white"],
-        body.bm-dark-mode div[style*="background-color: var(--white)"] /* Seletores mais genéricos */
-        {
-            background-color: #22272e !important; /* Tom intermediário */
-            color: var(--blue-dark) !important;
-            border-color: #444 !important; /* Ajusta bordas se houver */
-        }
-
-         /* Textos Gerais */
-        body.bm-dark-mode p,
-        body.bm-dark-mode h3,
-        body.bm-dark-mode h4,
-        body.bm-dark-mode h5,
-        body.bm-dark-mode h6,
-        body.bm-dark-mode label,
-        body.bm-dark-mode div[variant="subtitle1"],
-        body.bm-dark-mode span,
-        body.bm-dark-mode .MuiTypography-root,
-        body.bm-dark-mode .ql-editor /* Editor de texto rico */
-         {
-             color: var(--blue-dark) !important;
-        }
-         body.bm-dark-mode h3[style*="color: var(--blue-light)"],
-         body.bm-dark-mode h6[style*="color: var(--blue-light)"] {
-             color: var(--blue-light) !important; /* Mantem o azul claro onde ele é usado */
-         }
-
-        /* Textarea Principal */
-        body.bm-dark-mode textarea.jss17,
-        body.bm-dark-mode textarea#outlined-multiline-static {
-            background-color: #181c21 !important;
-            color: #c9d1d9 !important;
-            border: 1px solid #444 !important;
-             caret-color: #eee; /* Cor do cursor */
-        }
-         body.bm-dark-mode textarea.jss17:focus,
-         body.bm-dark-mode textarea#outlined-multiline-static:focus {
-            border-color: var(--blue-light) !important;
-            box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.3) !important; /* Foco azul */
-        }
-
-        /* Input Título */
-        body.bm-dark-mode .jss19 input.MuiInputBase-input {
-            background-color: #181c21 !important;
-            color: #c9d1d9 !important;
-            border: none !important;
-        }
-        body.bm-dark-mode .jss19 .MuiOutlinedInput-notchedOutline {
-             border-color: #444 !important;
-        }
-         body.bm-dark-mode .jss19 .Mui-focused .MuiOutlinedInput-notchedOutline {
-             border-color: var(--blue-light) !important;
-             box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.3) !important;
-         }
-
-         /* Botões */
-         body.bm-dark-mode button {
-             transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
-         }
-         body.bm-dark-mode button[style*="background: white"] { /* Botão 'SALVAR RASCUNHO' */
-             background: #333a45 !important;
-             color: var(--blue-light) !important;
-             border-color: #555 !important;
-         }
-         body.bm-dark-mode button[style*="background: white"]:hover {
-             background: #444c56 !important;
-             border-color: var(--blue-light) !important;
-         }
-          body.bm-dark-mode button[style*="background: var(--green)"] { /* Botão 'CORRIGIR ONLINE' / 'Concluir' */
-             background: #347d39 !important; /* Verde mais escuro */
-             color: #fff !important;
-             border-width: 0px !important;
-         }
-          body.bm-dark-mode button[style*="background: var(--green)"]:hover {
-               background: #46954a !important; /* Verde um pouco mais claro no hover */
-          }
-          body.bm-dark-mode button[style*="background: var(--blue-light)"] { /* Outros botões azuis? */
-               background: var(--blue-light) !important;
-               color: #111 !important;
-          }
-          body.bm-dark-mode button.jss21 { /* Botão 'Inserir Parágrafo' */
-              background-color: transparent !important;
-              color: var(--blue-light) !important;
-              border: 1px solid var(--blue-light) !important;
-          }
-           body.bm-dark-mode button.jss21:hover {
-              background-color: rgba(88, 166, 255, 0.1) !important;
-           }
-           body.bm-dark-mode button.jss26 { /* Botão 'Buscar redação por token' */
-              background-color: #333a45 !important;
-              color: #c9d1d9 !important;
-           }
-            body.bm-dark-mode button.jss26:hover {
-                background-color: #444c56 !important;
-            }
-            /* Botão desabilitado */
-             body.bm-dark-mode button:disabled {
-                background-color: #333 !important;
-                color: #777 !important;
-                opacity: 0.7 !important;
-                border-color: #555 !important;
-            }
-
-
-         /* Accordion (Histórico) */
-         body.bm-dark-mode .MuiPaper-root.MuiAccordion-root {
-            background-color: #282e35 !important;
-            color: var(--blue-dark) !important;
-         }
-         body.bm-dark-mode .MuiAccordionSummary-root {
-             border-bottom: 1px solid #444 !important;
-         }
-         body.bm-dark-mode .MuiAccordionSummary-expandIcon {
-             color: var(--blue-dark) !important;
-         }
-          body.bm-dark-mode .jss42 { /* Nota (Ex: 40/40) */
-              color: #56d364 !important; /* Verde */
-          }
-
-         /* Scrollbars */
-         body.bm-dark-mode ::-webkit-scrollbar { width: 10px; }
-         body.bm-dark-mode ::-webkit-scrollbar-track { background: #222; }
-         body.bm-dark-mode ::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
-         body.bm-dark-mode ::-webkit-scrollbar-thumb:hover { background: #777; }
-
-        /* VLibras Widget Adjust (Optional - might need tweaking) */
-        body.bm-dark-mode div[vw].enabled div[vw-access-button].active {
-             filter: invert(1) hue-rotate(180deg); /* Inverte cores para tentar adaptar */
-        }
-
+        /* Scrollbars */
+        body.bm-dark-mode ::-webkit-scrollbar { width: 10px; } body.bm-dark-mode ::-webkit-scrollbar-track { background: #222; } body.bm-dark-mode ::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; } body.bm-dark-mode ::-webkit-scrollbar-thumb:hover { background: #777; }
+        /* VLibras */
+        body.bm-dark-mode div[vw].enabled div[vw-access-button].active { filter: invert(1) hue-rotate(180deg); }
         /* Footer */
-        body.bm-dark-mode footer #footer1, body.bm-dark-mode footer #footer {
-            background-color: #151a21 !important;
-            color: #aaa !important;
-        }
-        body.bm-dark-mode footer a {
-            color: #77aaff !important; /* Links no footer */
-        }
-        body.bm-dark-mode footer .blue-line, body.bm-dark-mode footer .green-line {
-             opacity: 0.5;
-        }
-
+        body.bm-dark-mode footer #footer1, body.bm-dark-mode footer #footer { background-color: #151a21 !important; color: #aaa !important; } body.bm-dark-mode footer a { color: #77aaff !important; } body.bm-dark-mode footer .blue-line, body.bm-dark-mode footer .green-line { opacity: 0.5; }
     `;
     const styleTag = document.createElement('style'); styleTag.textContent = css; document.head.appendChild(styleTag);
 
@@ -243,19 +108,14 @@
         if (document.body.contains(splash)) { splash.remove(); }
 
         const wrapper = document.createElement('div'); wrapper.id = 'bmWrapper';
-        // Adicionado o Toggle de Dark Mode ao HTML do Wrapper
         wrapper.innerHTML = `
-            <div id="bmHeader">Paraná Tecla V2</div>
+            <div id="bmHeader">Paraná Colado V3 - AutoEditor Simulado</div>
             <div id="bmContent">
                 <textarea id="bmText" placeholder="Cole o texto aqui..."></textarea>
                 <input id="bmDelay" type="number" step="0.001" value="0.001" min="0.001" placeholder="Delay (s)">
-                <div id="bmToggleWrapper">
-                     <div id="bmToggleImg"></div> <span id="bmToggleText">Modo Disfarçado</span>
-                </div>
-                <div id="bmDarkModeToggleWrapper"> <div id="bmDarkModeToggleImg"></div> <span id="bmDarkModeToggleText">Modo Escuro Página</span>
-                </div>
-                <button id="bmBtn">Iniciar Digitação</button>
-                <button id="bmBtnCorrect">Corrigir Automaticamente</button>
+                <div id="bmToggleWrapper"> <div id="bmToggleImg"></div> <span id="bmToggleText">Modo Disfarçado</span> </div>
+                <div id="bmDarkModeToggleWrapper"> <div id="bmDarkModeToggleImg"></div> <span id="bmDarkModeToggleText">Modo Escuro Página</span> </div>
+                <button id="bmBtn">Iniciar Digitação</button> <button id="bmBtnCorrect">Corrigir Automaticamente</button>
             </div>
         `;
         document.body.appendChild(wrapper);
@@ -269,29 +129,17 @@
         const toggleWrapper = document.getElementById('bmToggleWrapper'); const toggleBox = document.getElementById('bmToggleImg'); /* ... código mantido ... */
         let stealthOn = false; let firstTimeStealth = true; let rect = null; function handleStealthMouseMove(ev) { if (!ev || typeof ev.clientX === 'undefined' || typeof ev.clientY === 'undefined') { return; } if (!stealthOn || !wrapper || !document.body.contains(wrapper)) { exitStealth(); return; } if (!rect) { rect = wrapper.getBoundingClientRect(); if (!rect || rect.width === 0 || rect.height === 0) return; } const mouseX = ev.clientX; const mouseY = ev.clientY; const isInside = (mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom); if (isInside) { if (wrapper.style.opacity === '0') { wrapper.style.opacity = 1; wrapper.style.pointerEvents = 'auto'; } } else { if (wrapper.style.opacity !== '0') { rect = wrapper.getBoundingClientRect(); if (rect && rect.width > 0 && rect.height > 0) { wrapper.style.opacity = 0; wrapper.style.pointerEvents = 'none'; } } } } function enterStealth() { if (!wrapper || !document.body.contains(wrapper)) return; stealthOn = true; wrapper.classList.add('stealth-mode'); toggleBox.classList.add('active'); wrapper.style.opacity = 1; wrapper.style.pointerEvents = 'auto'; rect = wrapper.getBoundingClientRect(); if (!rect || rect.width === 0 || rect.height === 0) { stealthOn = false; wrapper.classList.remove('stealth-mode'); toggleBox.classList.remove('active'); showCustomAlert("Erro Modo Disfarçado.", "error"); return; } document.addEventListener('mousemove', handleStealthMouseMove); wrapper.style.opacity = 0; wrapper.style.pointerEvents = 'none'; } function exitStealth() { stealthOn = false; document.removeEventListener('mousemove', handleStealthMouseMove); if (wrapper && document.body.contains(wrapper)) { wrapper.classList.remove('stealth-mode'); toggleBox.classList.remove('active'); wrapper.style.opacity = 1; wrapper.style.pointerEvents = 'auto'; } rect = null; } function showStealthOverlay() { const ov = document.createElement('div'); ov.id = 'bmOv'; ov.innerHTML = `<div id="bmOvContent"><img src="https://i.imgur.com/RquEok4.gif" alt="Demo"/> <p>O Modo Disfarçado oculta...</p> <button id="bmOvBtn">Entendido</button></div>`; document.body.appendChild(ov); document.getElementById('bmOvBtn').onclick = () => { ov.style.opacity = 0; setTimeout(() => { if (document.body.contains(ov)){ ov.remove(); } }, 500); enterStealth(); }; } toggleWrapper.onclick = () => { if (!stealthOn) { if (firstTimeStealth) { firstTimeStealth = false; showStealthOverlay(); } else { enterStealth(); } } else { exitStealth(); } };
 
-        // --- NOVO: Lógica Toggle Dark Mode ---
-        const darkModeToggleWrapper = document.getElementById('bmDarkModeToggleWrapper');
-        const darkModeToggleBox = document.getElementById('bmDarkModeToggleImg');
-        let isDarkModeOn = false; // Estado inicial
-
-        darkModeToggleWrapper.onclick = () => {
-            isDarkModeOn = !isDarkModeOn;
-            darkModeToggleBox.classList.toggle('active', isDarkModeOn);
-            document.body.classList.toggle('bm-dark-mode', isDarkModeOn);
-            console.log("Dark Mode:", isDarkModeOn ? "ON" : "OFF");
-        };
-        // --- Fim Lógica Dark Mode ---
-
+        // Lógica Toggle Dark Mode (Mantida)
+        const darkModeToggleWrapper = document.getElementById('bmDarkModeToggleWrapper'); const darkModeToggleBox = document.getElementById('bmDarkModeToggleImg'); let isDarkModeOn = false;
+        darkModeToggleWrapper.onclick = () => { isDarkModeOn = !isDarkModeOn; darkModeToggleBox.classList.toggle('active', isDarkModeOn); document.body.classList.toggle('bm-dark-mode', isDarkModeOn); console.log("Dark Mode:", isDarkModeOn ? "ON" : "OFF"); };
 
         // Lógica Botão "Iniciar Digitação" (Rápido, sem indicador)
-        const startButton = document.getElementById('bmBtn');
-        const correctButton = document.getElementById('bmBtnCorrect');
+        const startButton = document.getElementById('bmBtn'); const correctButton = document.getElementById('bmBtnCorrect');
         startButton.onclick = async function() { /* ... código mantido ... */
              const text = document.getElementById('bmText').value; const delayInput = parseFloat(document.getElementById('bmDelay').value); const delay = (!isNaN(delayInput) && delayInput * 1000 >= MIN_DELAY) ? delayInput * 1000 : MIN_DELAY; if (!text) { showCustomAlert('Texto vazio!', 'error'); return; } if (!activeEl || !document.body.contains(activeEl)) { showCustomAlert('Clique no campo alvo antes!', 'error'); return; } this.disabled = true; if (correctButton) correctButton.disabled = true;
              for (let n = 3; n >= 1; n--) { const cnt = document.createElement('div'); cnt.className = 'bmCountdownNumber'; cnt.textContent = n; wrapper.appendChild(cnt); await new Promise(r => setTimeout(r, 700)); if (wrapper.contains(cnt)) wrapper.removeChild(cnt); await new Promise(r => setTimeout(r, 100)); } let typingCompleted = true;
              try { activeEl.focus(); for (let i = 0; i < text.length; i++) { const char = text[i]; const success = sendChar(char); if (!success) { typingCompleted = false; break; } if (delay > 0) await new Promise(r => setTimeout(r, delay)); } if (typingCompleted) { showCustomAlert('Digitação concluída!', 'success'); } else { showCustomAlert('Digitação interrompida por erro.', 'error'); } } catch (error) { console.error("Erro na digitação:", error); showCustomAlert("Erro durante digitação.", 'error'); } finally { this.disabled = false; if (correctButton) correctButton.disabled = false; }
         };
-
 
         // --- LÓGICA CORREÇÃO AUTOMÁTICA (Final com todas as verificações) ---
         correctButton.onclick = async function() {
@@ -305,20 +153,29 @@
             let concludeButtonExists = false;
             try { /* ... código mantido ... */
                  const allButtons = document.querySelectorAll('button'); for (const btn of allButtons) { if (btn.textContent.trim() === "Concluir") { concludeButtonExists = true; console.log("Botão 'Concluir' encontrado. Pulando 'CORRIGIR ONLINE'."); break; } }
-             } catch (e) { console.error("Erro ao procurar 'Concluir':", e); }
+            } catch (e) { console.error("Erro ao procurar 'Concluir':", e); }
 
-            let correctionFlowStarted = false;
+            let correctionFlowStarted = false; // Flag para saber se entramos no fluxo online
 
             // --- Lógica Condicional: "CORRIGIR ONLINE" e Espera ---
             if (!concludeButtonExists) {
                 console.log("Botão 'Concluir' não encontrado. Verificando 'CORRIGIR ONLINE'.");
-                try { /* ... Lógica de verificação 'CORRIGIR ONLINE' / 'EM X' mantida ... */
-                    const correctorButtons = document.querySelectorAll('button'); let foundCorrectorButton = null; let foundWaitingButton = null;
+                try {
+                    // --- Verificação Aprimorada do Botão ---
+                    const correctorButtons = document.querySelectorAll('button');
+                    let foundCorrectorButton = null;
+                    let foundWaitingButton = null;
                     for (const button of correctorButtons) { const buttonText = button.textContent; if (buttonText && buttonText.includes("CORRIGIR ONLINE")) { if (buttonText.trim() === "CORRIGIR ONLINE") { foundCorrectorButton = button; } else { foundWaitingButton = button; break; } } }
-                    if (foundWaitingButton) { console.log("'CORRIGIR ONLINE' em espera."); showCustomAlert("'Corrigir Online' Em processo de espera, por favor aguarde.", 'info'); btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; }
-                    else if (foundCorrectorButton) { console.log("'CORRIGIR ONLINE' pronto."); foundCorrectorButton.click(); console.log("Clicou. Esperando 'PROCESSANDO' sumir..."); correctionFlowStarted = true; const processingSelector = 'div.sc-kAyceB.kEYIQb'; await waitForElementToDisappear(processingSelector, 30000); console.log("'PROCESSANDO' desapareceu."); console.log("Contagem regressiva 3s...");
+
+                    if (foundWaitingButton) {
+                        console.log("'CORRIGIR ONLINE' em espera.");
+                        showCustomAlert("'Corrigir Online' Em processo de espera, por favor aguarde.", 'info');
+                        btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; // PARA A EXECUÇÃO
+                    } else if (foundCorrectorButton) {
+                        console.log("'CORRIGIR ONLINE' pronto."); foundCorrectorButton.click(); console.log("Clicou. Esperando 'PROCESSANDO' sumir..."); correctionFlowStarted = true; const processingSelector = 'div.sc-kAyceB.kEYIQb'; await waitForElementToDisappear(processingSelector, 30000); console.log("'PROCESSANDO' desapareceu."); console.log("Contagem regressiva 3s...");
                          for (let n = 3; n >= 1; n--) { const cnt = document.createElement('div'); cnt.className = 'bmCorrectionCountdownNumber'; cnt.textContent = n; document.body.appendChild(cnt); await new Promise(r => setTimeout(r, 950)); if (document.body.contains(cnt)) document.body.removeChild(cnt); } console.log("Contagem finalizada.");
                     } else { console.log("'CORRIGIR ONLINE' não encontrado."); }
+                     // --- Fim Verificação Aprimorada ---
                 } catch (error) { /* ... tratamento de erro mantido ... */
                      if (error.message.includes('Timeout')) { showCustomAlert("Timeout esperando 'PROCESSANDO' desaparecer.", 'error'); } else { console.error("Erro ao processar 'CORRIGIR ONLINE':", error); showCustomAlert("Erro ao tentar clicar/esperar 'CORRIGIR ONLINE'.", 'error'); } btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return;
                  }
@@ -326,24 +183,39 @@
             // --- Fim da Lógica Condicional ---
 
 
-            // --- Lógica de Correção dos Spans (Acelerada) ---
-            let targetTextarea; /* ... código mantido ... */
-            try { targetTextarea = await waitForElement('textarea[id*="multiline"][class*="jss"]', 2000); } catch (error) { showCustomAlert('ERRO: Textarea não encontrada!', 'error'); btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; } console.log('Textarea encontrada.'); activeEl = targetTextarea;
-            console.log("Procurando spans..."); const errorSpans = document.querySelectorAll('div.jss24 p.MuiTypography-root.jss23 div[style*="white-space: break-spaces"] > span'); let correctedCount = 0; let errorCount = 0;
-            if (errorSpans.length === 0) { /* ... mensagem inicial mantida ... */
-                 console.log('Nenhum span de erro encontrado.'); if (!correctionFlowStarted && !concludeButtonExists) { showCustomAlert('Nenhum erro (span) encontrado.', 'info'); } else { showCustomAlert('Correção online processada. Nenhum erro (span) adicional encontrado.', 'info'); } btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return;
+            // --- Lógica de Correção dos Spans (Acelerada e com Seletor Atualizado) ---
+             let targetTextarea;
+            try { targetTextarea = await waitForElement('textarea[id*="multiline"][class*="jss"]', 2000); }
+            catch (error) { showCustomAlert('ERRO: Textarea principal não encontrada para correção!', 'error'); btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; }
+            console.log('Textarea principal encontrada para correção.'); activeEl = targetTextarea;
+
+            // ATUALIZADO: Seletor mais robusto para spans de erro (funciona na tela principal e no dialog)
+             console.log("Procurando spans de erro (seletor atualizado)...");
+             const errorSpans = document.querySelectorAll('span[style*="background-color: rgb"][style*="cursor: pointer"]');
+
+             let correctedCount = 0; let errorCount = 0;
+
+             if (errorSpans.length === 0) { // Verifica APÓS procurar com o novo seletor
+                 console.log('Nenhum span de erro encontrado para corrigir.');
+                 if (!correctionFlowStarted && !concludeButtonExists) { showCustomAlert('Nenhum erro (span) encontrado.', 'info'); }
+                 else { showCustomAlert('Correção online processada. Nenhum erro (span) adicional encontrado.', 'info'); }
+                 btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return;
              }
-            console.log(`Encontrados ${errorSpans.length} spans.`);
+            console.log(`Encontrados ${errorSpans.length} spans de erro.`);
+
             for (const errorSpan of errorSpans) { /* ... Loop de correção mantido ... */
                  if (btnCorrect.disabled === false) { console.log("Interrompido."); break; } if (!document.body.contains(errorSpan) || errorSpan.offsetParent === null) { continue; }
-                 try { const errorText = errorSpan.textContent.trim(); if (!errorText) continue; const currentTextValue = targetTextarea.value; const errorIndex = currentTextValue.indexOf(errorText); if (errorIndex === -1) { continue; } errorSpan.click(); await new Promise(r => setTimeout(r, waitDelay)); let suggestionList; try { suggestionList = await waitForElement('ul#menu-list-grow', 1000); } catch (e) { errorCount++; document.body.click(); await new Promise(r => setTimeout(r, waitDelay)); continue; } const suggestionItems = suggestionList.querySelectorAll('li'); const validSuggestions = Array.from(suggestionItems).slice(1).map(li => li.textContent.trim()).filter(text => text.length > 0); if (validSuggestions.length > 0) { const chosenSuggestion = validSuggestions[0]; targetTextarea.focus(); targetTextarea.selectionStart = errorIndex; targetTextarea.selectionEnd = errorIndex + errorText.length; await new Promise(r => setTimeout(r, waitDelay)); activeEl = targetTextarea; await simulateBackspace(targetTextarea); await new Promise(r => setTimeout(r, waitDelay)); activeEl = targetTextarea; for (const char of chosenSuggestion) { if (btnCorrect.disabled === false) break; sendChar(char); if(MIN_DELAY > 0) await new Promise(r => setTimeout(r, MIN_DELAY)); } if (btnCorrect.disabled === false) break; correctedCount++; } else { errorCount++; } document.body.click(); await new Promise(r => setTimeout(r, waitDelay * 2)); } catch (error) { console.error(`Erro span "${errorSpan?.textContent?.trim()}":`, error); errorCount++; try { document.body.click(); } catch(e){} await new Promise(r => setTimeout(r, waitDelay)); } await new Promise(r => setTimeout(r, waitDelay));
+                 try { const errorText = errorSpan.textContent.trim(); if (!errorText) continue; const currentTextValue = targetTextarea.value; const errorIndex = currentTextValue.indexOf(errorText); if (errorIndex === -1) { /* console.log(`Span "${errorText}" não mais na textarea.`); */ continue; } // Não loga mais para velocidade
+                     errorSpan.click(); await new Promise(r => setTimeout(r, waitDelay)); let suggestionList; try { suggestionList = await waitForElement('ul#menu-list-grow', 1000); } catch (e) { errorCount++; document.body.click(); await new Promise(r => setTimeout(r, waitDelay)); continue; } const suggestionItems = suggestionList.querySelectorAll('li'); const validSuggestions = Array.from(suggestionItems).slice(1).map(li => li.textContent.trim()).filter(text => text.length > 0); if (validSuggestions.length > 0) { const chosenSuggestion = validSuggestions[0]; /* console.log(`Corrigindo "${errorText}" com "${chosenSuggestion}"`); */ targetTextarea.focus(); targetTextarea.selectionStart = errorIndex; targetTextarea.selectionEnd = errorIndex + errorText.length; await new Promise(r => setTimeout(r, waitDelay)); activeEl = targetTextarea; await simulateBackspace(targetTextarea); await new Promise(r => setTimeout(r, waitDelay)); activeEl = targetTextarea; for (const char of chosenSuggestion) { if (btnCorrect.disabled === false) break; sendChar(char); if(MIN_DELAY > 0) await new Promise(r => setTimeout(r, MIN_DELAY)); } if (btnCorrect.disabled === false) break; correctedCount++; } else { errorCount++; } document.body.click(); await new Promise(r => setTimeout(r, waitDelay * 2)); } catch (error) { console.error(`Erro span "${errorSpan?.textContent?.trim()}":`, error); errorCount++; try { document.body.click(); } catch(e){} await new Promise(r => setTimeout(r, waitDelay)); } await new Promise(r => setTimeout(r, waitDelay));
             } // Fim loop for
 
             // --- Mensagem Final Aprimorada ---
             console.log('Correção concluída.');
-            if (errorCount > 0) { showCustomAlert("Um ou mais erros não puderam ser corrigidos. Por favor, os corrija manually.", 'warning'); }
-            else { if (correctedCount > 0) { showCustomAlert(`Correção finalizada! ${correctedCount} erros processados com sucesso.`, 'success'); }
-                   else { showCustomAlert('Nenhum erro necessitou de correção ou todos já estavam corretos.', 'info'); }
+            if (errorCount > 0) {
+                showCustomAlert("Um ou mais erros não puderam ser corrigidos. Por favor, os corrija manualmente.", 'warning');
+            } else {
+                if (correctedCount > 0) { showCustomAlert(`Correção finalizada! ${correctedCount} erros processados com sucesso.`, 'success'); }
+                else { showCustomAlert('Nenhum erro necessitou de correção ou todos já estavam corretos.', 'info'); }
             }
             // --- Fim Mensagem Final ---
 
