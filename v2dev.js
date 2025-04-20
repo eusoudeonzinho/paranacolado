@@ -165,7 +165,7 @@
         // Adicionado botão minimizar ao header
         wrapper.innerHTML = `
             <div id="bmHeader">
-                Paraná Colado V1
+                Paraná Colado V2
                 <span id="bmMinimizeBtn" title="Minimizar/Expandir">-</span> </div>
             <div id="bmContent">
                 <textarea id="bmText" placeholder="Cole o texto aqui..."></textarea>
