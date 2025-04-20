@@ -79,19 +79,18 @@
         const startButton = document.getElementById('bmBtn');
         const correctButton = document.getElementById('bmBtnCorrect');
         startButton.onclick = async function() { /* ... código mantido ... */
-            const text = document.getElementById('bmText').value; const delayInput = parseFloat(document.getElementById('bmDelay').value); const delay = (!isNaN(delayInput) && delayInput * 1000 >= MIN_DELAY) ? delayInput * 1000 : MIN_DELAY; if (!text) { showCustomAlert('Texto vazio!', 'error'); return; } if (!activeEl || !document.body.contains(activeEl)) { showCustomAlert('Clique no campo alvo antes!', 'error'); return; } this.disabled = true; if (correctButton) correctButton.disabled = true;
-            for (let n = 3; n >= 1; n--) { const cnt = document.createElement('div'); cnt.className = 'bmCountdownNumber'; cnt.textContent = n; wrapper.appendChild(cnt); await new Promise(r => setTimeout(r, 700)); if (wrapper.contains(cnt)) wrapper.removeChild(cnt); await new Promise(r => setTimeout(r, 100)); } let typingCompleted = true;
-            try { activeEl.focus(); for (let i = 0; i < text.length; i++) { const char = text[i]; const success = sendChar(char); if (!success) { typingCompleted = false; break; } if (delay > 0) await new Promise(r => setTimeout(r, delay)); } if (typingCompleted) { showCustomAlert('Digitação concluída!', 'success'); } else { showCustomAlert('Digitação interrompida por erro.', 'error'); } } catch (error) { console.error("Erro na digitação:", error); showCustomAlert("Erro durante digitação.", 'error'); } finally { this.disabled = false; if (correctButton) correctButton.disabled = false; }
+             const text = document.getElementById('bmText').value; const delayInput = parseFloat(document.getElementById('bmDelay').value); const delay = (!isNaN(delayInput) && delayInput * 1000 >= MIN_DELAY) ? delayInput * 1000 : MIN_DELAY; if (!text) { showCustomAlert('Texto vazio!', 'error'); return; } if (!activeEl || !document.body.contains(activeEl)) { showCustomAlert('Clique no campo alvo antes!', 'error'); return; } this.disabled = true; if (correctButton) correctButton.disabled = true;
+             for (let n = 3; n >= 1; n--) { const cnt = document.createElement('div'); cnt.className = 'bmCountdownNumber'; cnt.textContent = n; wrapper.appendChild(cnt); await new Promise(r => setTimeout(r, 700)); if (wrapper.contains(cnt)) wrapper.removeChild(cnt); await new Promise(r => setTimeout(r, 100)); } let typingCompleted = true;
+             try { activeEl.focus(); for (let i = 0; i < text.length; i++) { const char = text[i]; const success = sendChar(char); if (!success) { typingCompleted = false; break; } if (delay > 0) await new Promise(r => setTimeout(r, delay)); } if (typingCompleted) { showCustomAlert('Digitação concluída!', 'success'); } else { showCustomAlert('Digitação interrompida por erro.', 'error'); } } catch (error) { console.error("Erro na digitação:", error); showCustomAlert("Erro durante digitação.", 'error'); } finally { this.disabled = false; if (correctButton) correctButton.disabled = false; }
         };
 
-
-        // --- LÓGICA CORREÇÃO AUTOMÁTICA (MODIFICADA final com verificação Concluir/Esperando e Msg Final) ---
+        // --- LÓGICA CORREÇÃO AUTOMÁTICA (Final com todas as verificações) ---
         correctButton.onclick = async function() {
             const btnCorrect = this;
             btnCorrect.disabled = true; if (startButton) startButton.disabled = true;
             console.log('Iniciando correção automática...');
 
-            const waitDelay = MIN_DELAY * 5; // Pausa mínima entre passos
+            const waitDelay = MIN_DELAY * 5;
 
             // --- Verifica se botão "Concluir" existe PRIMEIRO ---
             let concludeButtonExists = false;
@@ -117,31 +116,35 @@
                     let foundCorrectorButton = null;
                     let foundWaitingButton = null;
 
+                    // Procura por ambos os estados do botão
                     for (const button of correctorButtons) {
-                        const buttonText = button.textContent; // Pega texto completo
+                        const buttonText = button.textContent;
                         if (buttonText && buttonText.includes("CORRIGIR ONLINE")) {
                             if (buttonText.trim() === "CORRIGIR ONLINE") {
-                                foundCorrectorButton = button; // Encontrou o botão exato
-                                // Não para, pois pode haver um botão de espera também
+                                // Encontrou o botão pronto, mas continua procurando caso haja um de espera
+                                foundCorrectorButton = button;
                             } else {
-                                foundWaitingButton = button; // Encontrou um que contém, mas não é exato (ex: " EM 4")
-                                break; // Assume que este é o estado atual e para a busca
+                                // Encontrou um que contém mas não é exato (ex: " EM 4"), indica espera
+                                foundWaitingButton = button;
+                                break; // Prioriza o estado de espera
                             }
                         }
                     }
 
-                    // Prioriza o botão de espera se encontrado
+                    // --- Ação baseada no que foi encontrado ---
                     if (foundWaitingButton) {
+                        // 1. Botão em estado de espera encontrado
                         console.log("Botão 'CORRIGIR ONLINE' parece estar em espera/processamento.");
                         showCustomAlert("'Corrigir Online' Em processo de espera, por favor aguarde.", 'info');
                         // Interrompe a execução aqui
                         btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return;
 
                     } else if (foundCorrectorButton) {
+                        // 2. Botão pronto encontrado
                         console.log("Botão 'CORRIGIR ONLINE' encontrado e pronto.");
                         foundCorrectorButton.click();
                         console.log("Clicou em 'CORRIGIR ONLINE'. Esperando 'PROCESSANDO' desaparecer...");
-                        correctionFlowStarted = true; // Marcamos que entramos neste fluxo
+                        correctionFlowStarted = true;
 
                         const processingSelector = 'div.sc-kAyceB.kEYIQb';
                         await waitForElementToDisappear(processingSelector, 30000); // Timeout 30s
@@ -151,7 +154,7 @@
                         console.log("Iniciando contagem regressiva de 3 segundos...");
                         for (let n = 3; n >= 1; n--) {
                             const cnt = document.createElement('div');
-                            cnt.className = 'bmCorrectionCountdownNumber'; // Classe para estilo centralizado
+                            cnt.className = 'bmCorrectionCountdownNumber';
                             cnt.textContent = n;
                             document.body.appendChild(cnt);
                             await new Promise(r => setTimeout(r, 950));
@@ -161,30 +164,39 @@
                         // --- Fim do Countdown ---
 
                     } else {
+                        // 3. Nenhum botão relevante encontrado
                         console.log("Botão 'CORRIGIR ONLINE' (nem em espera) não encontrado. Prosseguindo para correção dos spans.");
                     }
                 } catch (error) {
                     if (error.message.includes('Timeout')) { showCustomAlert("Timeout esperando 'PROCESSANDO' desaparecer.", 'error'); }
                     else { console.error("Erro ao processar 'CORRIGIR ONLINE':", error); showCustomAlert("Erro ao tentar clicar/esperar 'CORRIGIR ONLINE'.", 'error'); }
-                    btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return;
+                    btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; // Para aqui
                 }
             }
             // --- Fim da Lógica Condicional ---
 
 
             // --- Lógica de Correção dos Spans (Acelerada) ---
-             let targetTextarea;
+            let targetTextarea;
             try { targetTextarea = await waitForElement('textarea[id*="multiline"][class*="jss"]', 2000); }
             catch (error) { showCustomAlert('ERRO: Textarea principal não encontrada para correção!', 'error'); btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; }
             console.log('Textarea principal encontrada para correção.'); activeEl = targetTextarea;
 
             console.log("Procurando spans de erro...");
             const errorSpans = document.querySelectorAll('div.jss24 p.MuiTypography-root.jss23 div[style*="white-space: break-spaces"] > span');
-            if (errorSpans.length === 0 && correctedCount === 0) { // Verifica se JÁ não corrigiu nada E não achou spans
-                showCustomAlert(correctionFlowStarted ? 'Correção online processada. Nenhum erro (span) encontrado.' : 'Nenhum erro (span) encontrado para corrigir.', 'info');
+            let correctedCount = 0; let errorCount = 0; // Reinicia contadores aqui
+
+            if (errorSpans.length === 0) {
+                console.log('Nenhum span de erro encontrado para corrigir.');
+                // Mensagem inicial se não achou NADA (só mostra se não passou pelo fluxo online OU se passou e não achou nada depois)
+                if (!correctionFlowStarted) {
+                    showCustomAlert('Nenhum erro (span) encontrado para corrigir.', 'info');
+                } else {
+                    showCustomAlert('Correção online processada. Nenhum erro (span) adicional encontrado.', 'info');
+                }
                 btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return;
             }
-            console.log(`Encontrados ${errorSpans.length} spans de erro.`); let correctedCount = 0; let errorCount = 0;
+            console.log(`Encontrados ${errorSpans.length} spans de erro.`);
 
             for (const errorSpan of errorSpans) {
                  if (btnCorrect.disabled === false) { console.log("Correção interrompida."); break; }
@@ -199,7 +211,7 @@
                     const suggestionItems = suggestionList.querySelectorAll('li');
                     const validSuggestions = Array.from(suggestionItems).slice(1).map(li => li.textContent.trim()).filter(text => text.length > 0);
                     if (validSuggestions.length > 0) {
-                        const chosenSuggestion = validSuggestions[0];
+                        const chosenSuggestion = validSuggestions[0]; // Escolhe a primeira
                         targetTextarea.focus(); targetTextarea.selectionStart = errorIndex; targetTextarea.selectionEnd = errorIndex + errorText.length; await new Promise(r => setTimeout(r, waitDelay));
                         activeEl = targetTextarea; await simulateBackspace(targetTextarea); await new Promise(r => setTimeout(r, waitDelay));
                         activeEl = targetTextarea;
@@ -214,15 +226,13 @@
             // --- Mensagem Final Aprimorada ---
             console.log('Correção concluída.');
             if (errorCount > 0) {
-                // Mostra erro específico se alguma correção falhou
                 showCustomAlert("Um ou mais erros não puderam ser corrigidos. Por favor, os corrija manualmente.", 'warning');
             } else { // errorCount é 0
                 if (correctedCount > 0) {
-                    // Sucesso total E algo foi corrigido
                     showCustomAlert(`Correção finalizada! ${correctedCount} erros foram processados com sucesso.`, 'success');
                 } else {
-                    // Nenhum erro falhou, mas nenhum foi corrigido (talvez não havia erros ou já estavam ok)
-                     showCustomAlert('Nenhum erro necessitou de correção ou todos já estavam corretos.', 'info');
+                    // Nenhum erro falhou, mas nenhum foi corrigido (talvez não havia erros após fluxo online?)
+                    showCustomAlert('Nenhum erro necessitou de correção ou todos já estavam corretos.', 'info');
                 }
             }
             // --- Fim Mensagem Final ---
