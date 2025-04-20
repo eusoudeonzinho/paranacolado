@@ -4,7 +4,7 @@
 
     // --- Constantes de Delay (Mínimo) ---
     const MIN_DELAY = 1; // ms
-    const SCROLL_DELAY = 400; // ms - Tempo para esperar após scroll suave
+    const SCROLL_DELAY = 450; // ms - Aumentado ligeiramente para scroll mais perceptível
 
     // --- FUNÇÕES AUXILIARES ---
     function showCustomAlert(message, type = 'info') { /* ... código mantido ... */
@@ -25,78 +25,70 @@
         let effectiveCharCode = charCode; if (!effectiveCharCode && key && key.length === 1) { effectiveCharCode = key.charCodeAt(0); } const event = new KeyboardEvent(eventType, { key: key, code: `Key${key.toUpperCase()}`, keyCode: keyCode, which: keyCode, charCode: eventType === 'keypress' ? effectiveCharCode : 0, bubbles: true, cancelable: true }); target.dispatchEvent(event);
     }
     async function simulateBackspace(targetElement) { /* ... código mantido com MIN_DELAY ... */
-        if (!targetElement) return; activeEl = targetElement; targetElement.focus({ preventScroll: true }); /* Adicionado preventScroll */ const start = targetElement.selectionStart; const end = targetElement.selectionEnd; dispatchKeyEvent(targetElement, 'keydown', 'Backspace', 8); if ((targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA')) { const currentValue = targetElement.value; let newValue = currentValue; let newCursorPos = start; if (start === end && start > 0) { newValue = currentValue.substring(0, start - 1) + currentValue.substring(end); newCursorPos = start - 1; } else if (start !== end) { newValue = currentValue.substring(0, start) + currentValue.substring(end); newCursorPos = start; } if (newValue !== currentValue) { const prototype = Object.getPrototypeOf(targetElement); const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value'); if (descriptor && descriptor.set) { descriptor.set.call(targetElement, newValue); } else { targetElement.value = newValue; } targetElement.selectionStart = targetElement.selectionEnd = newCursorPos; targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true })); targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true })); } } else if (targetElement.isContentEditable) { document.execCommand('delete', false, null); } dispatchKeyEvent(targetElement, 'keyup', 'Backspace', 8); await new Promise(r => setTimeout(r, MIN_DELAY));
+        if (!targetElement) return; activeEl = targetElement; targetElement.focus(); const start = targetElement.selectionStart; const end = targetElement.selectionEnd; dispatchKeyEvent(targetElement, 'keydown', 'Backspace', 8); if ((targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA')) { const currentValue = targetElement.value; let newValue = currentValue; let newCursorPos = start; if (start === end && start > 0) { newValue = currentValue.substring(0, start - 1) + currentValue.substring(end); newCursorPos = start - 1; } else if (start !== end) { newValue = currentValue.substring(0, start) + currentValue.substring(end); newCursorPos = start; } if (newValue !== currentValue) { const prototype = Object.getPrototypeOf(targetElement); const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value'); if (descriptor && descriptor.set) { descriptor.set.call(targetElement, newValue); } else { targetElement.value = newValue; } targetElement.selectionStart = targetElement.selectionEnd = newCursorPos; targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true })); targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true })); } } else if (targetElement.isContentEditable) { document.execCommand('delete', false, null); } dispatchKeyEvent(targetElement, 'keyup', 'Backspace', 8); await new Promise(r => setTimeout(r, MIN_DELAY));
     }
     function sendChar(c) { /* ... código mantido e rápido ... */
-        if (!activeEl || !document.body.contains(activeEl)) { return false; } const targetElement = activeEl; targetElement.focus({ preventScroll: true }); /* Adicionado preventScroll */ const keyCode = c.charCodeAt(0); dispatchKeyEvent(targetElement, 'keydown', c, keyCode); dispatchKeyEvent(targetElement, 'keypress', c, keyCode, keyCode); if (targetElement.isContentEditable) { document.execCommand('insertText', false, c); } else if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA') { const start = targetElement.selectionStart; const end = targetElement.selectionEnd; const currentValue = targetElement.value; const newValue = currentValue.substring(0, start) + c + currentValue.substring(end); const prototype = Object.getPrototypeOf(targetElement); const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value'); if (descriptor && descriptor.set) { descriptor.set.call(targetElement, newValue); } else { targetElement.value = newValue; } targetElement.selectionStart = targetElement.selectionEnd = start + c.length; targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true })); targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true })); } dispatchKeyEvent(targetElement, 'keyup', c, keyCode); return true;
+        if (!activeEl || !document.body.contains(activeEl)) { return false; } const targetElement = activeEl; targetElement.focus(); const keyCode = c.charCodeAt(0); dispatchKeyEvent(targetElement, 'keydown', c, keyCode); dispatchKeyEvent(targetElement, 'keypress', c, keyCode, keyCode); if (targetElement.isContentEditable) { document.execCommand('insertText', false, c); } else if (targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA') { const start = targetElement.selectionStart; const end = targetElement.selectionEnd; const currentValue = targetElement.value; const newValue = currentValue.substring(0, start) + c + currentValue.substring(end); const prototype = Object.getPrototypeOf(targetElement); const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value'); if (descriptor && descriptor.set) { descriptor.set.call(targetElement, newValue); } else { targetElement.value = newValue; } targetElement.selectionStart = targetElement.selectionEnd = start + c.length; targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true })); targetElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true })); } dispatchKeyEvent(targetElement, 'keyup', c, keyCode); return true;
     }
 
-    // --- SPLASH INICIAL (Novas Animações) ---
+    // --- SPLASH INICIAL (Animação Mais Elaborada) ---
     const splash = document.createElement('div'); splash.id = 'bmSplash';
     splash.innerHTML = `
         <div id="bmSplashContent">
-             <img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png" alt="Logo"/>
+             <img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/>
              <div id="bmSplashTitle">Paraná Tools</div>
-             <div id="bmSplashSubtitle">AutoEditor Simulado</div>
+             <div id="bmSplashSubtitle">AutoEditor Simulado V1</div>
              <div id="bmLoadingBar"><div id="bmLoadingProgress"></div></div>
         </div>
         <div id="bmSplashBgEffect"></div>
     `;
     document.body.appendChild(splash);
 
-    // --- CSS INJETADO (Animações Splash Atualizadas) ---
+    // --- CSS INJETADO (Animação Splash e Correções) ---
     const css = `
-        /* === EFEITO DE FUNDO SPLASH === */
-        #bmSplashBgEffect { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1; background: #05050a; opacity: 0; animation: bgFadeIn 1s forwards 0.2s; /* Pode adicionar mais efeitos aqui */ }
+        /* --- Splash Screen Aprimorado --- */
+        #bmSplashBgEffect { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1; background: #050505; opacity: 0; animation: bgFadeIn 0.8s ease-out forwards; }
+        #bmSplash { position: fixed; top:0; left:0; width:100%; height:100%; background:#050505; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:99999; overflow:hidden; animation: splashFadeOut 0.7s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards 4.2s; /* Duração total aumentada */ }
+        #bmSplashContent { z-index: 2; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 
-        /* === SPLASH SCREEN === */
-         #bmSplash { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:99999; overflow:hidden; animation: splashFadeOut 0.7s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards 4.5s; /* Aumenta delay total */ }
-        #bmSplashContent { z-index: 2; display:flex; flex-direction:column; align-items:center; justify-content:center; perspective: 800px; /* Para efeitos 3D */ }
-
-        /* Logo */
         #bmSplashImg {
-            width:160px; margin-bottom: 25px;
-            filter: drop-shadow(0 5px 20px rgba(138, 43, 226, 0.4));
-            opacity: 0; /* Começa invisível */
-             /* Sequência de animações */
-             animation:
-                 logoEntry 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.5s, /* Entra com bounce */
-                 logoRetreat 1.0s ease-in-out forwards 2.5s; /* Recua */
+            width:170px; /* Um pouco menor */
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 20px rgba(138, 43, 226, 0.6));
+            opacity: 0;
+            transform: scale(0.5) rotate(-15deg);
+            /* Sequência: Entra com bounce -> Rotaciona/Move */
+            animation:
+                logoEntry 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.5s,
+                logoMoveRotate 1.5s ease-in-out forwards 1.8s;
         }
+        #bmSplashTitle, #bmSplashSubtitle {
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color:#fff; text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+            opacity: 0; transform: translateY(20px);
+        }
+        #bmSplashTitle { font-size: 2.6em; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 8px; animation: textFadeSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 2.0s; /* Atrasado */ }
+        #bmSplashSubtitle { font-size: 1.1em; font-weight: 300; color: #bbb; animation: textFadeSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 2.3s; /* Atrasado */ }
+        #bmLoadingBar { width: 220px; height: 6px; background-color: rgba(255, 255, 255, 0.15); border-radius: 3px; margin-top: 35px; overflow: hidden; opacity: 0; transform: translateY(20px); animation: textFadeSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 2.6s; /* Atrasado */ }
+        #bmLoadingProgress { width: 0%; height: 100%; background: linear-gradient(90deg, #8A2BE2, #A040FF); border-radius: 3px; animation: loadingAnim 1.2s cubic-bezier(0.65, 0.05, 0.36, 1) forwards 3.0s; /* Começa após barra aparecer */ }
 
-        /* Títulos */
-        #bmSplashTitle, #bmSplashSubtitle { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#fff; text-shadow: 0 0 8px rgba(255, 255, 255, 0.6); opacity: 0; transform: translateY(20px); }
-        #bmSplashTitle { font-size: 2.8em; font-weight: 900; /* Mais pesado */ letter-spacing: 1.5px; margin-bottom: 8px; animation: textAppear 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 1.8s; /* Aparece depois da logo */ }
-        #bmSplashSubtitle { font-size: 1.3em; font-weight: 300; color: #bbb; animation: textAppear 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 2.1s; /* Aparece depois do título */ }
-
-         /* Barra de Carregamento */
-         #bmLoadingBar { width: 200px; height: 5px; background-color: rgba(255, 255, 255, 0.15); border-radius: 3px; margin-top: 35px; overflow: hidden; opacity: 0; transform: scaleX(0.5); animation: loadingBarAppear 0.6s ease-out forwards 3.0s; /* Aparece depois do recuo da logo */ }
-        #bmLoadingProgress { width: 0%; height: 100%; background: linear-gradient(90deg, #8A2BE2, #c38fff); border-radius: 3px; animation: loadingProgressFill 1.2s cubic-bezier(0.65, 0.05, 0.36, 1) forwards 3.5s; /* Preenche após a barra aparecer */ }
-
-        /* Keyframes das Novas Animações do Splash */
+        /* Keyframes do Splash Aprimorado */
         @keyframes bgFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes logoEntry {
-             0%   { opacity: 0; transform: scale(0.5) rotateY(45deg) translateY(50px); }
-             60%  { opacity: 1; transform: scale(1.1) rotateY(-10deg) translateY(0px); }
-             80%  { transform: scale(0.95) rotateY(5deg); }
-             100% { opacity: 1; transform: scale(1) rotateY(0deg); }
+        @keyframes logoEntry { /* Entrada com bounce e rotação */
+            0% { opacity: 0; transform: scale(0.5) rotate(-15deg); }
+            60% { opacity: 1; transform: scale(1.1) rotate(5deg); }
+            80% { transform: scale(0.95) rotate(-2deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
         }
-         @keyframes logoRetreat {
-             0%   { transform: scale(1) rotateY(0deg) translateZ(0px); }
-             100% { transform: scale(0.85) rotateY(10deg) translateZ(-80px); } /* Recua e vira 3D */
+        @keyframes logoMoveRotate { /* Movimento sutil após entrada */
+             0% { transform: scale(1) rotate(0deg) translateY(0); }
+             100% { transform: scale(0.85) rotate(3deg) translateY(-15px); } /* Move pra cima/trás e rotaciona */
         }
-         @keyframes textAppear {
-             from { opacity: 0; transform: translateY(20px); }
-             to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes loadingBarAppear {
-             from { opacity: 0; transform: scaleX(0.5); }
-             to { opacity: 1; transform: scaleX(1); }
-        }
-        @keyframes loadingProgressFill { from { width: 0%; } to { width: 100%; } }
-        @keyframes splashFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
+        @keyframes textFadeSlide { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes loadingAnim { from { width: 0%; } to { width: 100%; } }
+        @keyframes splashFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
 
-        /* --- Resto do CSS (Alert, Wrapper, Dark Mode, etc.) --- */
+        /* --- Restante do CSS (Alertas, Wrapper, Dark Mode, etc.) Mantido --- */
         #bmAlertOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100001; opacity: 0; transition: opacity 0.3s ease-out; pointer-events: none;} #bmAlertOverlay:has(#bmAlertBox.bmAlertPopIn) { pointer-events: auto; } #bmAlertBox { background: #1e1e1e; color: #fff; padding: 25px 30px; border-radius: 8px; border: 1px solid #333; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); min-width: 300px; max-width: 450px; text-align: center; font-family: 'Segoe UI', sans-serif; transform: scale(0.9); opacity: 0; } #bmAlertBox.bmAlertPopIn { animation: alertPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; } #bmAlertBox.bmAlertFadeOut { animation: alertFadeOut 0.3s ease-out forwards; } #bmAlertMessage { font-size: 1.1em; line-height: 1.5; margin: 0 0 20px 0; } #bmAlertCloseBtn { padding: 10px 25px; font-size: 1em; background: #8A2BE2; border: none; border-radius: 5px; color: #fff; cursor: pointer; transition: background 0.2s ease, transform 0.15s ease; font-weight: bold; } #bmAlertCloseBtn:hover { background: #7022b6; transform: scale(1.05); } #bmAlertCloseBtn:active { transform: scale(0.98); } @keyframes alertPopIn { from { opacity: 0; transform: scale(0.8) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } } @keyframes alertFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
         #bmWrapper { position:fixed; top:20px; right:20px; width:320px; border:1px solid #333; border-radius:8px; box-shadow:0 6px 15px rgba(0,0,0,.6); font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#fff; opacity:0; transform:translateX(30px) scale(0.95); transition:opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.3s ease-out; z-index:99998; overflow: hidden; background: linear-gradient(135deg, #1e1e1e, #151515, #1e1e1e); background-size: 200% 200%; animation: subtleGradient 15s ease infinite; } @keyframes subtleGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } } #bmWrapper.show { opacity:1; transform:translateX(0) scale(1); }
         #bmHeader { cursor:move; padding:10px 15px; background: rgba(17, 17, 17, 0.8); backdrop-filter: blur(2px); border-bottom:1px solid #333; font-size:0.95em; font-weight: bold; text-align:center; border-radius:8px 8px 0 0; user-select: none; position: relative; display: flex; align-items: center; justify-content: center; } #bmHeader span:not(#bmMinimizeBtn) { flex-grow: 1; text-align: center; } #bmMinimizeBtn { font-size: 1.6em; font-weight: bold; color: #aaa; cursor: pointer; padding: 0 8px; line-height: 1; transition: color 0.2s ease; user-select: none; margin-left: auto; transform: translateY(-1px); } #bmMinimizeBtn:hover { color: #eee; }
@@ -113,7 +105,7 @@
         /* === ESTILOS DARK MODE PÁGINA === */
         body.bm-dark-mode { /* ... Definições mantidas ... */ --blue-light: #58a6ff; --green: #347d39; --white: #1c1c1c; --blue-dark: #c9d1d9; background-color: var(--white) !important; color: var(--blue-dark) !important; }
         body.bm-dark-mode section#main, body.bm-dark-mode main { background-color: var(--white) !important; } body.bm-dark-mode nav.sc-gEvEer { background-color: #151a21 !important; border-bottom: 1px solid #333; } body.bm-dark-mode nav.sc-eqUAAy span.bar { background-color: var(--blue-dark) !important; }
-        body.bm-dark-mode .jss1, body.bm-dark-mode .jss3, body.bm-dark-mode .jss5, body.bm-dark-mode .jss6, body.bm-dark-mode .jss10, /* Adicionada */ body.bm-dark-mode .jss15, body.bm-dark-mode .jss16, /* Adicionada */ body.bm-dark-mode .jss17, body.bm-dark-mode .jss19, body.bm-dark-mode .jss20, body.bm-dark-mode .jss23, /* Adicionada */ body.bm-dark-mode .jss24, body.bm-dark-mode .jss26, /* Adicionada */ body.bm-dark-mode .jss27, /* Adicionada */ body.bm-dark-mode .jss30, body.bm-dark-mode .jss33, body.bm-dark-mode .jss35, /* Adicionada */ body.bm-dark-mode .jss37, /* Adicionada */ body.bm-dark-mode .jss38, body.bm-dark-mode .jss39, /* Adicionada */ body.bm-dark-mode .jss40, /* Adicionada */ body.bm-dark-mode .jss41, body.bm-dark-mode .jss51, body.bm-dark-mode .jss52, body.bm-dark-mode .jss53, body.bm-dark-mode .jss54, body.bm-dark-mode .jss55, body.bm-dark-mode .jss57, /* Adicionada */ body.bm-dark-mode .jss59, body.bm-dark-mode .jss45, body.bm-dark-mode div[style*="background-color: white"], body.bm-dark-mode div[style*="background-color: var(--white)"] { background-color: #22272e !important; color: var(--blue-dark) !important; border-color: #444 !important; }
+        body.bm-dark-mode .jss1, body.bm-dark-mode .jss3, body.bm-dark-mode .jss5, body.bm-dark-mode .jss6, body.bm-dark-mode .jss10, /* Adicionado .jss10 */ body.bm-dark-mode .jss15, body.bm-dark-mode .jss16, /* Adicionado .jss16 */ body.bm-dark-mode .jss17, body.bm-dark-mode .jss19, body.bm-dark-mode .jss20, body.bm-dark-mode .jss24, body.bm-dark-mode .jss30, body.bm-dark-mode .jss33, body.bm-dark-mode .jss38, body.bm-dark-mode .jss41, body.bm-dark-mode .jss51, body.bm-dark-mode .jss52, body.bm-dark-mode .jss53, body.bm-dark-mode .jss54, body.bm-dark-mode .jss55, body.bm-dark-mode .jss59, body.bm-dark-mode .jss45, body.bm-dark-mode .jss23, /* Adicionado .jss23 que envolve texto corrigido */ body.bm-dark-mode div[style*="background-color: white"], body.bm-dark-mode div[style*="background-color: var(--white)"] { background-color: #22272e !important; color: var(--blue-dark) !important; border-color: #444 !important; }
         body.bm-dark-mode p, body.bm-dark-mode h3, body.bm-dark-mode h4, body.bm-dark-mode h5, body.bm-dark-mode h6, body.bm-dark-mode label, body.bm-dark-mode div[variant="subtitle1"], body.bm-dark-mode span:not([style*="background-color"]):not(#bmMinimizeBtn), body.bm-dark-mode .MuiTypography-root:not(.jss46 p):not(.jss56):not(.jss60 p), body.bm-dark-mode .ql-editor { color: var(--blue-dark) !important; }
         body.bm-dark-mode h3[style*="color: var(--blue-light)"], body.bm-dark-mode h6[style*="color: var(--blue-light)"] { color: var(--blue-light) !important; }
         body.bm-dark-mode textarea.jss17, body.bm-dark-mode textarea.jss31, body.bm-dark-mode textarea#outlined-multiline-static { background-color: #181c21 !important; color: #c9d1d9 !important; border: 1px solid #444 !important; caret-color: #eee; } body.bm-dark-mode textarea.jss17:focus, body.bm-dark-mode textarea.jss31:focus, body.bm-dark-mode textarea#outlined-multiline-static:focus { border-color: var(--blue-light) !important; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.3) !important; }
@@ -123,8 +115,7 @@
         body.bm-dark-mode span[style*="background-color"][style*="cursor: pointer"] { color: #111 !important; padding: 0.05em 0.1em; border-radius: 2px; text-shadow: none !important; } body.bm-dark-mode span[style*="background-color: rgb(206, 242, 213)"] { background-color: rgba(206, 242, 213, 0.9) !important; } body.bm-dark-mode span[style*="background-color: rgb(225, 182, 252)"] { background-color: rgba(225, 182, 252, 0.9) !important; } body.bm-dark-mode span[style*="background-color: rgb(237, 147, 50)"] { background-color: rgba(237, 147, 50, 0.8) !important; } body.bm-dark-mode span[style*="background-color: rgb(180, 187, 250)"] { background-color: rgba(180, 187, 250, 0.9) !important; }
         /* CORREÇÃO FINAL: Texto PRETO nas caixas de contagem de erro (jss46 e jss60) */
         body.bm-dark-mode .jss46 p.MuiTypography-root, body.bm-dark-mode .jss60 p.MuiTypography-root { color: #111 !important; font-weight: 500 !important; }
-        body.bm-dark-mode .jss45, body.bm-dark-mode .jss59 { background-color: #282e35 !important; padding: 5px; border-radius: 4px; }
-        body.bm-dark-mode .jss46, body.bm-dark-mode .jss60 { border: 1px solid rgba(0,0,0,0.2) !important; opacity: 0.9; }
+        body.bm-dark-mode .jss45, body.bm-dark-mode .jss59 { background-color: #282e35 !important; padding: 5px; border-radius: 4px; } body.bm-dark-mode .jss46, body.bm-dark-mode .jss60 { border: 1px solid rgba(0,0,0,0.2) !important; opacity: 0.9; }
         /* Dialog de Correção */
         body.bm-dark-mode .MuiDialog-paper { background-color: #22272e !important; } body.bm-dark-mode .MuiDialogTitle-root h2 { color: #eee !important; } body.bm-dark-mode .MuiDialogContent-root { color: var(--blue-dark) !important; } body.bm-dark-mode div[style*="background-color: var(--blue-light)"][style*="color: var(--white)"] { background-color: #151a21 !important; color: #eee !important; }
         /* Scrollbars */
@@ -137,14 +128,14 @@
     const styleTag = document.createElement('style'); styleTag.textContent = css; document.head.appendChild(styleTag);
 
     // --- LÓGICA PRINCIPAL E UI ---
-    const splashTimeout = 4800; // Aumenta tempo total do splash para novas animações
+    const splashTimeout = 4500; // Aumentado ligeiramente para nova animação splash
     setTimeout(() => {
         if (document.body.contains(splash)) { splash.remove(); }
 
         const wrapper = document.createElement('div'); wrapper.id = 'bmWrapper';
         wrapper.innerHTML = `
             <div id="bmHeader">
-                 <span>Paraná Colado V2</span>
+                 <span>Paraná Colado V1</span>
                  <span id="bmMinimizeBtn" title="Minimizar/Expandir">-</span>
             </div>
             <div id="bmContent">
@@ -162,34 +153,33 @@
 
         setTimeout(() => wrapper.classList.add('show'), 50);
 
-        // Lógica de arrastar
+        // Lógica de arrastar (Mantida)
         let isDragging = false; let dragStartX, dragStartY, initialLeft, initialTop; header.onmousedown = e => { if (e.target === bmMinimizeBtn || bmMinimizeBtn.contains(e.target)) return; isDragging = true; dragStartX = e.clientX; dragStartY = e.clientY; initialLeft = wrapper.offsetLeft; initialTop = wrapper.offsetTop; header.style.cursor = 'grabbing'; document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp); e.preventDefault(); }; function onMouseMove(e) { if (!isDragging) return; const dx = e.clientX - dragStartX; const dy = e.clientY - dragStartY; wrapper.style.left = initialLeft + dx + 'px'; wrapper.style.top = initialTop + dy + 'px'; } function onMouseUp() { if (isDragging) { isDragging = false; header.style.cursor = 'move'; document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); } }
 
-        // Lógica Minimizar/Expandir
+        // Lógica Minimizar/Expandir (Mantida)
         if(bmMinimizeBtn && wrapper){ bmMinimizeBtn.onclick = (e) => { e.stopPropagation(); const isMinimized = wrapper.classList.toggle('minimized'); bmMinimizeBtn.textContent = isMinimized ? '+' : '-'; bmMinimizeBtn.title = isMinimized ? 'Expandir' : 'Minimizar'; if (stealthOn) { setTimeout(() => { rect = wrapper.classList.contains('minimized') ? header.getBoundingClientRect() : wrapper.getBoundingClientRect(); }, 310); } }; }
 
-        // Lógica “Modo Disfarçado”
+        // Lógica “Modo Disfarçado” (Mantida)
         const toggleWrapper = document.getElementById('bmToggleWrapper'); const toggleBox = document.getElementById('bmToggleImg');
         let stealthOn = false; let firstTimeStealth = true; let rect = null; function handleStealthMouseMove(ev) { if (!ev || typeof ev.clientX === 'undefined' || typeof ev.clientY === 'undefined') { return; } if (!stealthOn || !wrapper || !document.body.contains(wrapper)) { exitStealth(); return; } if (!rect) { rect = wrapper.classList.contains('minimized') ? header.getBoundingClientRect() : wrapper.getBoundingClientRect(); if (!rect || rect.width === 0 || rect.height === 0) return; } const mouseX = ev.clientX; const mouseY = ev.clientY; const isInside = (rect && mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom); if (isInside) { if (wrapper.style.opacity === '0') { wrapper.style.opacity = 1; wrapper.style.pointerEvents = 'auto'; } } else { if (wrapper.style.opacity !== '0') { rect = wrapper.classList.contains('minimized') ? header.getBoundingClientRect() : wrapper.getBoundingClientRect(); if (rect && rect.width > 0 && rect.height > 0) { wrapper.style.opacity = 0; wrapper.style.pointerEvents = 'none'; } } } } function enterStealth() { if (!wrapper || !document.body.contains(wrapper)) return; stealthOn = true; wrapper.classList.add('stealth-mode'); toggleBox.classList.add('active'); wrapper.style.opacity = 1; wrapper.style.pointerEvents = 'auto'; rect = wrapper.classList.contains('minimized') ? header.getBoundingClientRect() : wrapper.getBoundingClientRect(); if (!rect || rect.width === 0 || rect.height === 0) { stealthOn = false; wrapper.classList.remove('stealth-mode'); toggleBox.classList.remove('active'); showCustomAlert("Erro Modo Disfarçado.", "error"); return; } document.addEventListener('mousemove', handleStealthMouseMove); wrapper.style.opacity = 0; wrapper.style.pointerEvents = 'none'; } function exitStealth() { stealthOn = false; document.removeEventListener('mousemove', handleStealthMouseMove); if (wrapper && document.body.contains(wrapper)) { wrapper.classList.remove('stealth-mode'); toggleBox.classList.remove('active'); wrapper.style.opacity = 1; wrapper.style.pointerEvents = 'auto'; } rect = null; } function showStealthOverlay() { const ov = document.createElement('div'); ov.id = 'bmOv'; ov.innerHTML = `<div id="bmOvContent"><img src="https://i.imgur.com/RquEok4.gif" alt="Demo"/> <p>O Modo Disfarçado oculta...</p> <button id="bmOvBtn">Entendido</button></div>`; document.body.appendChild(ov); document.getElementById('bmOvBtn').onclick = () => { ov.style.opacity = 0; setTimeout(() => { if (document.body.contains(ov)){ ov.remove(); } }, 500); enterStealth(); }; } toggleWrapper.onclick = () => { if (!stealthOn) { if (firstTimeStealth) { firstTimeStealth = false; showStealthOverlay(); } else { enterStealth(); } } else { exitStealth(); } };
 
-        // Lógica Toggle Dark Mode
+        // Lógica Toggle Dark Mode (Mantida)
         const darkModeToggleWrapper = document.getElementById('bmDarkModeToggleWrapper'); const darkModeToggleBox = document.getElementById('bmDarkModeToggleImg'); let isDarkModeOn = false;
         darkModeToggleWrapper.onclick = () => { isDarkModeOn = !isDarkModeOn; darkModeToggleBox.classList.toggle('active', isDarkModeOn); document.body.classList.toggle('bm-dark-mode', isDarkModeOn); console.log("Dark Mode:", isDarkModeOn ? "ON" : "OFF"); };
 
-        // Lógica Botão "Iniciar Digitação"
+        // Lógica Botão "Iniciar Digitação" (Mantida)
         const startButton = document.getElementById('bmBtn'); const correctButton = document.getElementById('bmBtnCorrect');
         startButton.onclick = async function() { /* ... código mantido ... */
              const text = document.getElementById('bmText').value; const delayInput = parseFloat(document.getElementById('bmDelay').value); const delay = (!isNaN(delayInput) && delayInput * 1000 >= MIN_DELAY) ? delayInput * 1000 : MIN_DELAY; if (!text) { showCustomAlert('Texto vazio!', 'error'); return; } if (!activeEl || !document.body.contains(activeEl)) { showCustomAlert('Clique no campo alvo antes!', 'error'); return; } this.disabled = true; if (correctButton) correctButton.disabled = true;
              for (let n = 3; n >= 1; n--) { const cnt = document.createElement('div'); cnt.className = 'bmCountdownNumber'; cnt.textContent = n; wrapper.appendChild(cnt); await new Promise(r => setTimeout(r, 700)); if (wrapper.contains(cnt)) wrapper.removeChild(cnt); await new Promise(r => setTimeout(r, 100)); } let typingCompleted = true;
-             try { activeEl.focus({ preventScroll: true }); /* Adiciona preventScroll aqui também */ for (let i = 0; i < text.length; i++) { const char = text[i]; const success = sendChar(char); if (!success) { typingCompleted = false; break; } if (delay > 0) await new Promise(r => setTimeout(r, delay)); } if (typingCompleted) { showCustomAlert('Digitação concluída!', 'success'); } else { showCustomAlert('Digitação interrompida por erro.', 'error'); } } catch (error) { console.error("Erro na digitação:", error); showCustomAlert("Erro durante digitação.", 'error'); } finally { this.disabled = false; if (correctButton) correctButton.disabled = false; }
+             try { activeEl.focus(); for (let i = 0; i < text.length; i++) { const char = text[i]; const success = sendChar(char); if (!success) { typingCompleted = false; break; } if (delay > 0) await new Promise(r => setTimeout(r, delay)); } if (typingCompleted) { showCustomAlert('Digitação concluída!', 'success'); } else { showCustomAlert('Digitação interrompida por erro.', 'error'); } } catch (error) { console.error("Erro na digitação:", error); showCustomAlert("Erro durante digitação.", 'error'); } finally { this.disabled = false; if (correctButton) correctButton.disabled = false; }
         };
 
-
-        // --- LÓGICA CORREÇÃO AUTOMÁTICA (Final com Scroll Suave Textarea Corrigido) ---
+        // --- LÓGICA CORREÇÃO AUTOMÁTICA (Scroll Textarea Ajustado) ---
         correctButton.onclick = async function() {
             const btnCorrect = this; btnCorrect.disabled = true; if (startButton) startButton.disabled = true; console.log('Iniciando correção automática...'); const waitDelay = MIN_DELAY * 5; let concludeButtonExists = false; try { const allButtons = document.querySelectorAll('button'); for (const btn of allButtons) { if (btn.textContent.trim() === "Concluir") { concludeButtonExists = true; console.log("Botão 'Concluir' encontrado."); break; } } } catch (e) { console.error("Erro ao procurar 'Concluir':", e); } let correctionFlowStarted = false;
             if (!concludeButtonExists) { /* ... Lógica 'CORRIGIR ONLINE' mantida ... */
-                console.log("'Concluir' não encontrado. Verificando 'CORRIGIR ONLINE'."); try { const correctorButtons = document.querySelectorAll('button'); let foundCorrectorButton = null; let foundWaitingButton = null; for (const button of correctorButtons) { const buttonText = button.textContent; if (buttonText && buttonText.includes("CORRIGIR ONLINE")) { if (buttonText.trim() === "CORRIGIR ONLINE") { foundCorrectorButton = button; } else { foundWaitingButton = button; break; } } } if (foundWaitingButton) { console.log("'CORRIGIR ONLINE' em espera."); showCustomAlert("'Corrigir Online' Em processo de espera...", 'info'); btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; } else if (foundCorrectorButton) { console.log("'CORRIGIR ONLINE' pronto."); foundCorrectorButton.click(); console.log("Clicou. Esperando 'PROCESSANDO' sumir..."); correctionFlowStarted = true; const processingSelector = 'div.sc-kAyceB.kEYIQb'; await waitForElementToDisappear(processingSelector, 30000); console.log("'PROCESSANDO' desapareceu."); console.log("Contagem regressiva 3s..."); for (let n = 3; n >= 1; n--) { const cnt = document.createElement('div'); cnt.className = 'bmCorrectionCountdownNumber'; cnt.textContent = n; document.body.appendChild(cnt); await new Promise(r => setTimeout(r, 950)); if (document.body.contains(cnt)) document.body.removeChild(cnt); } console.log("Contagem finalizada."); } else { console.log("'CORRIGIR ONLINE' não encontrado."); } } catch (error) { if (error.message.includes('Timeout')) { showCustomAlert("Timeout esperando 'PROCESSANDO'.", 'error'); } else { console.error("Erro 'CORRIGIR ONLINE':", error); showCustomAlert("Erro ao processar 'CORRIGIR ONLINE'.", 'error'); } btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; }
+                 console.log("'Concluir' não encontrado. Verificando 'CORRIGIR ONLINE'."); try { const correctorButtons = document.querySelectorAll('button'); let foundCorrectorButton = null; let foundWaitingButton = null; for (const button of correctorButtons) { const buttonText = button.textContent; if (buttonText && buttonText.includes("CORRIGIR ONLINE")) { if (buttonText.trim() === "CORRIGIR ONLINE") { foundCorrectorButton = button; } else { foundWaitingButton = button; break; } } } if (foundWaitingButton) { console.log("'CORRIGIR ONLINE' em espera."); showCustomAlert("'Corrigir Online' Em processo de espera...", 'info'); btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; } else if (foundCorrectorButton) { console.log("'CORRIGIR ONLINE' pronto."); foundCorrectorButton.click(); console.log("Clicou. Esperando 'PROCESSANDO' sumir..."); correctionFlowStarted = true; const processingSelector = 'div.sc-kAyceB.kEYIQb'; await waitForElementToDisappear(processingSelector, 30000); console.log("'PROCESSANDO' desapareceu."); console.log("Contagem regressiva 3s..."); for (let n = 3; n >= 1; n--) { const cnt = document.createElement('div'); cnt.className = 'bmCorrectionCountdownNumber'; cnt.textContent = n; document.body.appendChild(cnt); await new Promise(r => setTimeout(r, 950)); if (document.body.contains(cnt)) document.body.removeChild(cnt); } console.log("Contagem finalizada."); } else { console.log("'CORRIGIR ONLINE' não encontrado."); } } catch (error) { if (error.message.includes('Timeout')) { showCustomAlert("Timeout esperando 'PROCESSANDO'.", 'error'); } else { console.error("Erro 'CORRIGIR ONLINE':", error); showCustomAlert("Erro ao processar 'CORRIGIR ONLINE'.", 'error'); } btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; }
             }
             let targetTextarea; try { targetTextarea = await waitForElement('textarea[id*="multiline"][class*="jss"]', 2000); } catch (error) { showCustomAlert('ERRO: Textarea não encontrada!', 'error'); btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; } console.log('Textarea encontrada.'); activeEl = targetTextarea; console.log("Procurando spans..."); const errorSpans = document.querySelectorAll('span[style*="background-color: rgb"][style*="cursor: pointer"]'); let correctedCount = 0; let errorCount = 0;
             if (errorSpans.length === 0) { /* ... mensagem inicial mantida ... */ console.log('Nenhum span encontrado.'); if (!correctionFlowStarted && !concludeButtonExists) { showCustomAlert('Nenhum erro (span) encontrado.', 'info'); } else { showCustomAlert('Nenhum erro (span) adicional encontrado.', 'info'); } btnCorrect.disabled = false; if (startButton) startButton.disabled = false; return; } console.log(`Encontrados ${errorSpans.length} spans.`);
@@ -199,7 +189,7 @@
                  if (btnCorrect.disabled === false) { console.log("Interrompido."); break; }
                  if (!document.body.contains(errorSpan) || errorSpan.offsetParent === null) { continue; }
                 try {
-                    // *** SCROLL SUAVE PARA O ERRO ***
+                    // 1. SCROLL SUAVE PARA O ERRO ANTES DE CLICAR
                     console.log(`Scroll para erro: "${errorSpan.textContent.trim()}"`);
                     errorSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     await new Promise(r => setTimeout(r, SCROLL_DELAY));
@@ -219,15 +209,18 @@
                     if (validSuggestions.length > 0) {
                         const chosenSuggestion = validSuggestions[0];
 
-                        // *** SCROLL SUAVE PARA TEXTAREA ANTES DE EDITAR ***
-                        console.log("Scroll para textarea antes de editar...");
+                        // 2. FOCO E SELEÇÃO PRIMEIRO
+                        targetTextarea.focus();
+                        targetTextarea.selectionStart = errorIndex;
+                        targetTextarea.selectionEnd = errorIndex + errorText.length;
+                        await new Promise(r => setTimeout(r, waitDelay)); // Pequena pausa após focar/selecionar
+
+                        // 3. SCROLL SUAVE PARA TEXTAREA DEPOIS DO FOCO/SELEÇÃO
+                        console.log("Scroll para textarea após foco/seleção...");
                         targetTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        await new Promise(r => setTimeout(r, SCROLL_DELAY));
+                        await new Promise(r => setTimeout(r, SCROLL_DELAY)); // Espera scroll
 
-                        // *** FOCO SEM SCROLL PADRÃO ***
-                        targetTextarea.focus({ preventScroll: true });
-
-                        targetTextarea.selectionStart = errorIndex; targetTextarea.selectionEnd = errorIndex + errorText.length; await new Promise(r => setTimeout(r, waitDelay)); // Pequena pausa após selecionar
+                        // 4. EXECUTA A EDIÇÃO
                         activeEl = targetTextarea; await simulateBackspace(targetTextarea); await new Promise(r => setTimeout(r, waitDelay));
                         activeEl = targetTextarea;
                         for (const char of chosenSuggestion) { if (btnCorrect.disabled === false) break; sendChar(char); if(MIN_DELAY > 0) await new Promise(r => setTimeout(r, MIN_DELAY)); }
