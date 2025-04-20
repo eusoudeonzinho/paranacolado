@@ -177,7 +177,7 @@
 
         const wrapper = document.createElement('div'); wrapper.id = 'bmWrapper';
         wrapper.innerHTML = `
-            <div id="bmHeader"> <span>Paraná Colado V1</span> <span id="bmMinimizeBtn" title="Minimizar/Expandir">-</span> </div>
+            <div id="bmHeader"> <span>Paraná Tecla V2</span> <span id="bmMinimizeBtn" title="Minimizar/Expandir">-</span> </div>
             <div id="bmContent">
                  <textarea id="bmText" placeholder="Cole o texto aqui..." class="bmFadeInSlideUp" style="animation-delay: 0.1s;"></textarea>
                  <input id="bmDelay" type="number" step="0.001" value="0.001" min="0.001" placeholder="Delay (s)" class="bmFadeInSlideUp" style="animation-delay: 0.15s;">
