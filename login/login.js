@@ -1,16 +1,27 @@
-const clientId = "1363359825811083294";
-const redirectUri = "https://backendparanatools.onrender.com/auth/discord/callback"; // URL do backend
+const discordUrl = "https://backendparanatools.onrender.com/auth/discord";
 
 document.getElementById("login-discord").addEventListener("click", () => {
-    const discordUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify`;
     window.location.href = discordUrl;
 });
 
-// Pega dados da URL (após login)
-const urlParams = new URLSearchParams(window.location.search);
-const username = urlParams.get("name");
-const avatar = urlParams.get("avatar");
+// Verifica se tem token na URL ou no localStorage
+const params = new URLSearchParams(window.location.search);
+const token = params.get("token") || localStorage.getItem("token");
 
-if (username && avatar) {
-    document.body.innerHTML += `<p>Bem-vindo, ${username}!</p><img src="https://cdn.discordapp.com/avatars/ID_DO_USUARIO/${avatar}.png" width="80">`;
+if (params.get("token")) {
+    // Salva no localStorage
+    localStorage.setItem("token", params.get("token"));
+
+    // Limpa a URL (remove o `?token=...`)
+    window.history.replaceState({}, document.title, "/");
+}
+
+if (token) {
+    fetch(`https://backendparanatools.onrender.com/api/user?token=${token}`)
+        .then(res => res.json())
+        .then(user => {
+            if (!user.error) {
+                window.location.href = "../index.html";
+            }
+        });
 }

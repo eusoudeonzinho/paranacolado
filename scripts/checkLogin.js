@@ -1,0 +1,25 @@
+const token = localStorage.getItem("token");
+
+if (token) {
+    fetch(`https://backendparanatools.onrender.com/api/user?token=${token}`)
+        .then(res => res.json())
+        .then(user => {
+            if (user.error) {
+                // Token inválido: mostra login
+                document.getElementById("login-btn").style.display = "inline";
+                document.getElementById("user-info").style.display = "none";
+            } else {
+                // Usuário logado: mostra info e esconde botão
+                document.getElementById("login-btn").style.display = "none";
+                document.getElementById("user-info").style.display = "inline";
+                document.getElementById("user-info").innerHTML = `
+          <img src="${user.avatar}">
+          <h2>${user.username}</h2>
+        `;
+            }
+        });
+} else {
+    // Sem token: mostra login
+    document.getElementById("login-btn").style.display = "inline";
+    document.getElementById("user-info").style.display = "none";
+}
