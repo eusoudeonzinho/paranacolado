@@ -13,9 +13,23 @@ if (token) {
                 document.getElementById("login-btn").style.display = "none";
                 document.getElementById("user-info").style.display = "inline";
                 document.getElementById("user-info").innerHTML = `
-          <img src="${user.avatar}">
-          <h2>${user.username}</h2>
-        `;
+                    <div class="inside-button">
+                        <img src="${user.avatar}">
+                        <button id="logout-button">
+                            <img src="/imgs/icons/door.svg" alt="Sair">
+                        </button>
+                    </div>
+                    <h2>${user.username}</h2>
+                `;
+
+                
+                // Logout
+                const logoutButton = document.getElementById("logout-button");
+                if (logoutButton != null) {
+                    logoutButton.addEventListener("click", () => {
+                        localStorage.removeItem("token");
+                    })
+                }
             }
         });
 } else {

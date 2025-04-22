@@ -7,7 +7,7 @@
         <title>Paraná Tools - Redação Rush</title>
         
         <!-- Estilização do Site -->
-        <link rel="stylesheet" href="../styles/general.css">
+        <link rel="stylesheet" href="../css/general.css">
     </head>
 
     <!-- Estruturação do Site -->
@@ -16,13 +16,13 @@
         <div class="nav-bar">
             <div>
                 <img src="../imgs/icon.png" alt="Icone Paraná Tools">
-                <a href="../index.html"><h2>Paraná Tools</h2></a>
+                <a href="../"><h2>Paraná Tools</h2></a>
             </div>
 
             <div>
                 <a href="#script-v1">Redação Rush V1</a>
                 <a href="#script-v2">Redação Rush V2</a>
-                <a id="login-btn" href="../login/index.html">Login</a>
+                <a id="login-btn" href="../login" style="display: none;">Login</a>
                 <div id="user-info" style="display: none;"></div>
             </div>
         </div>
@@ -176,11 +176,13 @@
             </div>
 
             <div id="parana-tools-div">
-                <img src="imgs/icon.png" alt="Icone Paraná Tools">
+                <img src="../imgs/icon.png" alt="Icone Paraná Tools">
                 <p>Paraná Tools</p>
             </div>
         </div>
 
+        <!-- Java Script -->
+        <script src="../scripts/checkLogin.js"></script>
         <script src="scripts/open_script.js"></script>
         <script src="scripts/anim_script.js"></script>
     </body>

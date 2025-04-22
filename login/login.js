@@ -21,7 +21,7 @@ if (token) {
         .then(res => res.json())
         .then(user => {
             if (!user.error) {
-                window.location.href = "../index.html";
+                window.location.href = "../";
             }
         });
 }
