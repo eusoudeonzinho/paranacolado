@@ -13,8 +13,8 @@
     splash.id = 'bmSplash';
     splash.innerHTML = `
       <img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/>
-      <div id="bmSplashTxt1">Paraná Colado</div>
-      <div id="bmSplashTxt2">V1</div>
+      <div id="bmSplashTxt1">Paraná Tools</div>
+      <div id="bmSplashTxt2">Redação Rush V1</div>
     `;
     document.body.appendChild(splash);
   
@@ -288,7 +288,7 @@
         const ov = document.createElement('div');
         ov.id = 'bmOv';
         ov.innerHTML = `
-          <img src="https://i.imgur.com/RquEok4.gif"/>
+          <img src="https://i.imgur.com/KCoxRQ4.jpeg"/>
           <button id="bmOvBtn">Continuar</button>
         `;
         document.body.appendChild(ov);

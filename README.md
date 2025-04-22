@@ -1,2 +1,2 @@
-# PARANÁ TOOLS
-Alguns "utensílios" que servem para te auxiliar nas tarefas do Paraná, como Redação Paraná, Ingles Paraná, Khan Academy, etc.
+# PRyzen Labs
+Scripts que ajudam em ferramentas educacionais como Khan Academy, Matific, Quizziz, etc.
