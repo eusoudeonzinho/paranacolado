@@ -6,7 +6,7 @@ if (token) {
         .then(user => {
             if (user.error) {
                 // Token inválido: mostra login
-                document.getElementById("login-btn").style.display = "inline";
+                document.getElementById("login-btn").style.display = "flex";
                 document.getElementById("user-info").style.display = "none";
             } else {
                 // Usuário logado: mostra info e esconde botão
@@ -35,6 +35,6 @@ if (token) {
         });
 } else {
     // Sem token: mostra login
-    document.getElementById("login-btn").style.display = "inline";
+    document.getElementById("login-btn").style.display = "flex";
     document.getElementById("user-info").style.display = "none";
 }
