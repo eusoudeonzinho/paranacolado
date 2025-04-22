@@ -11,7 +11,7 @@ if (token) {
             } else {
                 // Usuário logado: mostra info e esconde botão
                 document.getElementById("login-btn").style.display = "none";
-                document.getElementById("user-info").style.display = "inline";
+                document.getElementById("user-info").style.display = "flex";
                 document.getElementById("user-info").innerHTML = `
                     <div class="inside-button">
                         <img src="${user.avatar}">
@@ -28,6 +28,7 @@ if (token) {
                 if (logoutButton != null) {
                     logoutButton.addEventListener("click", () => {
                         localStorage.removeItem("token");
+                        window.location.reload()
                     })
                 }
             }
