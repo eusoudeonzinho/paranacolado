@@ -249,8 +249,8 @@ button:active {
     width: 30vw;
 }
 
-/* Paraná Tools Div */
-#parana-tools-div {
+/* Pryzen Lab  Div */
+#pryzen-lab-div {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -259,12 +259,12 @@ button:active {
     margin: 100px;
 }
 
-#parana-tools-div img {
+#pryzen-lab-div img {
     margin: 0;
     width: 80px;
 }
 
-#parana-tools-div p {
+#pryzen-lab-div p {
     margin: 0;
     font-weight: bold;
     font-size: 25px;
