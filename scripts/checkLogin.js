@@ -1,40 +1,67 @@
 const token = localStorage.getItem("token");
 
 if (token) {
-    fetch(`https://backendparanatools.onrender.com/api/user?token=${token}`)
-        .then(res => res.json())
-        .then(user => {
-            if (user.error) {
-                // Token inválido: mostra login
-                document.getElementById("login-btn").style.display = "flex";
-                document.getElementById("user-info").style.display = "none";
-            } else {
-                // Usuário logado: mostra info e esconde botão
-                document.getElementById("login-btn").style.display = "none";
-                document.getElementById("user-info").style.display = "flex";
-                document.getElementById("user-info").innerHTML = `
-                    <div class="inside-button">
-                        <img src="${user.avatar}">
-                        <button id="logout-button">
-                            <img src="/imgs/icons/door.svg" alt="Sair">
-                        </button>
-                    </div>
-                    <h2>${user.username}</h2>
-                `;
-
-                
-                // Logout
-                const logoutButton = document.getElementById("logout-button");
-                if (logoutButton != null) {
-                    logoutButton.addEventListener("click", () => {
-                        localStorage.removeItem("token");
-                        window.location.reload()
-                    })
-                }
-            }
-        });
+    checkToken(token);
 } else {
-    // Sem token: mostra login
+    tryRefreshAndRetry();
+}
+
+async function checkToken(token) {
+    try {
+        const res = await fetch(`https://backendparanatools.onrender.com/api/user?token=${token}`);
+        const user = await res.json();
+
+        if (user.error) {
+            tryRefreshAndRetry();
+        } else {
+            showUser(user);
+        }
+    } catch {
+        tryRefreshAndRetry();
+    }
+}
+
+async function tryRefreshAndRetry() {
+    try {
+        const res = await fetch("https://backendparanatools.onrender.com/api/refresh", {
+            credentials: "include"
+        });
+        const data = await res.json();
+
+        if (data.token) {
+            localStorage.setItem("token", data.token);
+            checkToken(data.token);
+        } else {
+            showLogin();
+        }
+    } catch {
+        showLogin();
+    }
+}
+
+function showUser(user) {
+    document.getElementById("login-btn").style.display = "none";
+    document.getElementById("user-info").style.display = "flex";
+    document.getElementById("user-info").innerHTML = `
+        <div class="inside-button">
+            <img src="${user.avatar}">
+            <button id="logout-button">
+                <img src="/imgs/icons/door.svg" alt="Sair">
+            </button>
+        </div>
+        <h2>${user.username}</h2>
+    `;
+
+    const logoutButton = document.getElementById("logout-button");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", () => {
+            localStorage.removeItem("token");
+            window.location.reload();
+        });
+    }
+}
+
+function showLogin() {
     document.getElementById("login-btn").style.display = "flex";
     document.getElementById("user-info").style.display = "none";
 }
