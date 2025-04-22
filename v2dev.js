@@ -3,7 +3,7 @@
     if (document.getElementById('bmSplash')) return;
 
     // --- Constantes ---
-    const SCRIPT_BRANDING = "PRyzen - Redação Rush"; // NOVO: Nome do script
+    const SCRIPT_BRANDING = "Pryzen Labs"; // NOVO: Nome do script
     const MIN_DELAY = 1;
     const SCROLL_DELAY = 40;
     const STEP_DELAY = MIN_DELAY;
@@ -67,7 +67,7 @@
 
     // Splash Inicial (Atualizado com Branding)
     const splash = document.createElement('div'); splash.id = 'bmSplash';
-    splash.innerHTML = `<div id="bmSplashContent"><img id="bmSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/> <div id="bmSplashTexts"> <div id="bmSplashTitle">${SCRIPT_BRANDING}</div> <div id="bmSplashSubtitle">AutoEditor Simulado</div> </div> <div id="bmLoadingBar"><div id="bmLoadingProgress"></div></div> </div> <div id="bmSplashBgEffect"></div><div class="bmSplashGrid"></div>`;
+    splash.innerHTML = `<div id="bmSplashContent"><img id="bmSplashImg" src="https://i.imgur.com/LWpRaIG.png"/> <div id="bmSplashTexts"> <div id="bmSplashTitle">${SCRIPT_BRANDING}</div> <div id="bmSplashSubtitle">Redação Rush</div> </div> <div id="bmLoadingBar"><div id="bmLoadingProgress"></div></div> </div> <div id="bmSplashBgEffect"></div><div class="bmSplashGrid"></div>`;
     document.body.appendChild(splash);
 
     // --- CSS INJETADO (Mantido V3) ---
@@ -206,10 +206,10 @@
             <div id="bmHeader"><span>${SCRIPT_BRANDING}</span><span id="bmMinimizeBtn" title="Minimizar/Expandir">-</span></div>
             <div id="bmContent">
                 <textarea id="bmText" placeholder="Cole o texto aqui ou use Gerar Texto" class="bmFadeInSlideUp" style="animation-delay: 0.1s;"></textarea>
-                <input id="bmDelay" type="number" step="1" value="${SIMULATED_TYPE_DELAY}" min="0" placeholder="Delay Digitação (ms)" title="Delay para 'Iniciar Digitação (Alvo)' em milissegundos" class="bmFadeInSlideUp" style="animation-delay: 0.15s;">
+                <input id="bmDelay" type="number" step="1" value="${SIMULATED_TYPE_DELAY}" min="0" placeholder="Delay Digitação (ms)" title="Delay para 'Iniciar Digitação" class="bmFadeInSlideUp" style="animation-delay: 0.15s;">
                 <div id="bmToggleWrapper" class="bmFadeInSlideUp" style="animation-delay: 0.2s;"><div id="bmToggleImg"></div> <span id="bmToggleText">Modo Disfarçado</span></div>
                 <div id="bmDarkModeToggleWrapper" class="bmFadeInSlideUp" style="animation-delay: 0.25s;"><div id="bmDarkModeToggleImg"></div> <span id="bmDarkModeToggleText">Modo Escuro Página</span></div>
-                <button id="bmBtn" class="bmFadeInSlideUp" style="animation-delay: 0.3s;">Iniciar Digitação (Alvo)</button>
+                <button id="bmBtn" class="bmFadeInSlideUp" style="animation-delay: 0.3s;">Iniciar Digitação</button>
                 <button id="bmBtnCorrect" class="bmFadeInSlideUp" style="animation-delay: 0.35s;">Corrigir Automaticamente</button>
                 <button id="bmOptionsBtn" class="bmFadeInSlideUp" style="animation-delay: 0.4s;" title="Mais Opções">...</button>
             </div>
