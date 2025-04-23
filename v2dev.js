@@ -3,7 +3,7 @@
     if (document.getElementById('bmSplash')) return;
 
     // --- Constantes ---
-    const SCRIPT_BRANDING = "Pryzen Labs"; // NOVO: Nome do script
+    const SCRIPT_BRANDING = "Pryzen Labs"; // Nome do script
     const MIN_DELAY = 1;
     const SCROLL_DELAY = 40;
     const STEP_DELAY = MIN_DELAY;
@@ -65,12 +65,99 @@
     // showBusySplash: Mantida V3
     function showBusySplash(message1 = "Processando...", message2 = "Aguarde um momento.", soundwave = true) { /* ... código mantido V3 ... */ const overlayId = 'bmBusySplash'; removeOverlay(overlayId); const overlay = document.createElement('div'); overlay.id = overlayId; overlay.className = 'bmBusySplashOverlay'; overlay.style.cssText = ` position: fixed; inset: 0; background: rgba(10, 5, 20, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100003; opacity: 0; transition: opacity 0.5s ease-out; font-family: 'Segoe UI', sans-serif; color: #eee; overflow: hidden; pointer-events: none; `; let soundwaveHTML = ''; if (soundwave) { soundwaveHTML = '<div class="bmSoundwaveContainer">'; for (let i = 0; i < 25; i++) { soundwaveHTML += `<div class="bmSoundwaveBar" style="--bar-index: ${i};"></div>`; } soundwaveHTML += '</div>'; } overlay.innerHTML = ` <div class="bmBusyContent" style="text-align: center; opacity: 0; transform: scale(0.9); transition: opacity 0.5s ease-out 0.1s, transform 0.5s ease-out 0.1s;"> ${soundwaveHTML} <p class="bmBusyMessage1" style="font-size: 1.6em; font-weight: 600; margin-top: ${soundwave ? '35px' : '0'}; margin-bottom: 15px; color: #e0cffc; text-shadow: 0 0 8px rgba(160, 86, 247, 0.7);">${message1}</p> <p class="bmBusyMessage2" style="font-size: 1.1em; color: #ccc; max-width: 450px; line-height: 1.6;">${message2}</p> </div> `; document.body.appendChild(overlay); void overlay.offsetWidth; overlay.style.opacity = '1'; overlay.style.pointerEvents = 'auto'; const busyContent = overlay.querySelector('.bmBusyContent'); if (busyContent) { busyContent.style.opacity = '1'; busyContent.style.transform = 'scale(1)'; } return overlay; }
 
+    // --- NOVO: Função para mostrar diálogo de prompt do usuário ---
+    async function showPromptInputDialog() {
+        return new Promise((resolve) => {
+            const dialogId = 'bmPromptInputDialog';
+            removeOverlay(dialogId); // Remove se já existir
+
+            const overlay = document.createElement('div');
+            overlay.id = dialogId;
+            overlay.className = 'bmDialogOverlay';
+
+            const dialogBox = document.createElement('div');
+            dialogBox.className = 'bmDialogBox';
+            dialogBox.style.minWidth = '450px'; // Um pouco maior para a textarea
+            dialogBox.style.maxWidth = '650px';
+
+            // Ícone, Título, Mensagem
+            dialogBox.innerHTML = `
+                <div class="bmDialogIcon question">?</div>
+                <h3 style="color: #e0cffc; margin-bottom: 15px; font-size: 1.4em;">Prompt Personalizado para IA</h3>
+                <p class="bmDialogMessage" style="margin-bottom: 20px; font-size: 1.1em;">
+                    Digite abaixo o que você deseja que a IA gere.
+                    <br><small>(O texto da "Proposta" da página será anexado como contexto adicional, se encontrado).</small>
+                </p>
+                <textarea id="bmUserInputPrompt" style="width: 100%; min-height: 100px; margin-bottom: 25px; padding: 10px; font-size: 0.95em; font-family: Consolas, Monaco, monospace; background: rgba(18, 18, 20, 0.9); border: 1px solid #606066; border-radius: 7px; color: #f8f8f8; box-sizing: border-box; resize: vertical; transition: all 0.3s ease; box-shadow: inset 0 2px 5px rgba(0,0,0,0.7);" placeholder="Ex: Crie um poema sobre a lua..."></textarea>
+                <div class="bmDialogButtonContainer"></div>
+            `;
+
+            const textarea = dialogBox.querySelector('#bmUserInputPrompt');
+            const buttonContainer = dialogBox.querySelector('.bmDialogButtonContainer');
+
+            // Botão Cancelar
+            const btnCancel = document.createElement('button');
+            btnCancel.textContent = 'Cancelar';
+            btnCancel.className = 'bmDialogButton secondary';
+            btnCancel.onclick = () => {
+                dialogBox.classList.remove('bmDialogEnter');
+                dialogBox.classList.add('bmDialogExit');
+                overlay.classList.add('bmDialogFadeOut');
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                    resolve(null); // Resolve como nulo para indicar cancelamento
+                }, 400);
+            };
+
+            // Botão Gerar
+            const btnGenerate = document.createElement('button');
+            btnGenerate.textContent = 'Gerar Texto';
+            btnGenerate.className = 'bmDialogButton';
+            btnGenerate.onclick = () => {
+                const userPromptText = textarea.value.trim();
+                if (!userPromptText) {
+                    // Poderia mostrar um alerta interno, mas por simplicidade, apenas focamos
+                    textarea.style.borderColor = 'red';
+                    textarea.focus();
+                    setTimeout(() => { textarea.style.borderColor = '#606066'; }, 1500);
+                    return; // Não fecha se estiver vazio
+                }
+                dialogBox.classList.remove('bmDialogEnter');
+                dialogBox.classList.add('bmDialogExit');
+                overlay.classList.add('bmDialogFadeOut');
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                    resolve(userPromptText); // Resolve com o texto do prompt
+                }, 400);
+            };
+
+            buttonContainer.appendChild(btnCancel);
+            buttonContainer.appendChild(btnGenerate);
+
+            overlay.appendChild(dialogBox);
+            document.body.appendChild(overlay);
+
+            // Aplica animação de entrada
+            void overlay.offsetWidth; // Força reflow
+            overlay.classList.add('bmDialogFadeIn');
+            dialogBox.classList.add('bmDialogEnter');
+
+            // Foca na textarea
+            setTimeout(() => textarea.focus(), 100);
+        });
+    }
+
+
     // Splash Inicial (Atualizado com Branding)
     const splash = document.createElement('div'); splash.id = 'bmSplash';
-    splash.innerHTML = `<div id="bmSplashContent"><img id="bmSplashImg" src="https://i.imgur.com/LWpRaIG.png"/> <div id="bmSplashTexts"> <div id="bmSplashTitle">${SCRIPT_BRANDING}</div> <div id="bmSplashSubtitle">Redação Rush</div> </div> <div id="bmLoadingBar"><div id="bmLoadingProgress"></div></div> </div> <div id="bmSplashBgEffect"></div><div class="bmSplashGrid"></div>`;
+    splash.innerHTML = `<div id="bmSplashContent"><img id="bmSplashImg" src="https://i.imgur.com/dbROaRM.png"/> <div id="bmSplashTexts"> <div id="bmSplashTitle">${SCRIPT_BRANDING}</div> <div id="bmSplashSubtitle">Redação Rush</div> </div> <div id="bmLoadingBar"><div id="bmLoadingProgress"></div></div> </div> <div id="bmSplashBgEffect"></div><div class="bmSplashGrid"></div>`;
     document.body.appendChild(splash);
 
-    // --- CSS INJETADO (Mantido V3) ---
+    // --- CSS INJETADO (Mantido Igual ao Anterior - Nenhuma mudança necessária aqui) ---
     const css = `
         /* Estilos da Interface do Script (Splash, Dialogs, UI Principal) */
         #bmSplashBgEffect { position: absolute; inset: 0; overflow: hidden; z-index: 1; background: radial-gradient(circle, #3a205f 0%, #0a0514 80%); opacity: 0; animation: bgSplashEnterFast 3.5s ease-out forwards; } @keyframes bgSplashEnterFast { 0% { opacity: 0; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } } .bmSplashGrid { position: absolute; inset: -200px; z-index: 2; background-image: linear-gradient(rgba(138, 43, 226, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(138, 43, 226, 0.07) 1px, transparent 1px); background-size: 55px 55px; opacity: 0; animation: gridFadeMoveFast 4s ease-out forwards 0.1s; } @keyframes gridFadeMoveFast { 0% { opacity: 0; background-position: 0 0; } 50% { opacity: 0.5; } 100% { opacity: 0.3; background-position: -110px -110px; } } #bmSplash { position: fixed; inset: 0; background:transparent; display:flex; align-items:center; justify-content:center; z-index:99999; overflow:hidden; animation: splashHideFast 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards 3.5s; } #bmSplashContent { z-index: 3; display:flex; flex-direction:column; align-items:center; justify-content:center; perspective: 1000px; } #bmSplashImg { width:170px; margin-bottom: 20px; filter: drop-shadow(0 7px 28px rgba(160, 86, 247, 0.75)); opacity: 0; transform: scale(0.6) rotateZ(-45deg) translateY(60px); animation: logoSuperEntryFast 1.6s cubic-bezier(0.175, 0.885, 0.32, 1.3) forwards 0.3s, logoFloatBob 2s ease-in-out infinite alternate 2s; } @keyframes logoSuperEntryFast { 0% { opacity: 0.5; transform: scale(0.6) rotateZ(-45deg) translateY(60px); } 60% { opacity: 1; transform: scale(1.18) rotateZ(15deg) translateY(0px); } 80% { transform: scale(0.96) rotateZ(-8deg); } 100% { opacity: 1; transform: scale(1) rotateZ(0deg); } } @keyframes logoFloatBob { from { transform: translateY(0px) scale(1); filter: drop-shadow(0 7px 28px rgba(160, 86, 247, 0.75)); } to { transform: translateY(-7px) scale(1.02); filter: drop-shadow(0 11px 33px rgba(160, 86, 247, 0.85)); } } #bmSplashTexts { opacity: 0; transform: translateY(25px) scale(0.9); animation: textsSuperAppearFast 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards 1.8s; text-align: center; } #bmSplashTitle { font-size: 2.7em; font-weight: 900; letter-spacing: 1px; margin-bottom: 4px; font-family:'Segoe UI Black', Arial, sans-serif; color:#fff; text-shadow: 0 0 12px rgba(220, 180, 255, 0.8); background: linear-gradient(45deg, #e0cffc, #b37ffc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } #bmSplashSubtitle { font-size: 1.4em; font-weight: 300; color: #e5d9ff; font-family:'Segoe UI Light', Arial, sans-serif; letter-spacing: 0.8px; animation: subtitleGlow 2s ease-in-out infinite alternate 2.5s; } @keyframes textsSuperAppearFast { to { opacity: 1; transform: translateY(0) scale(1); } } @keyframes subtitleGlow { from { opacity: 0.8; } to { opacity: 1; text-shadow: 0 0 7px rgba(220, 180, 255, 0.7); } } #bmLoadingBar { width: 250px; height: 7px; background-color: rgba(255, 255, 255, 0.1); border-radius: 3.5px; margin-top: 35px; overflow: hidden; opacity: 0; transform: scaleX(0); animation: barSuperAppear 0.6s ease-out forwards 2.8s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.3); } #bmLoadingProgress { width: 0%; height: 100%; background: linear-gradient(90deg, #b37ffc, #f0dfff); border-radius: 3.5px; animation: loadingAnimFinalFast 0.8s cubic-bezier(0.65, 0.05, 0.36, 1) forwards 3.0s; position: relative; overflow: hidden;} #bmLoadingProgress::after { content: ''; position: absolute; top: 0; left: -50%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); animation: shimmer 1.2s infinite; animation-delay: 3.2s;} @keyframes barSuperAppear { to { opacity: 1; transform: scaleX(1); } } @keyframes loadingAnimFinalFast { from { width: 0%; } to { width: 100%; } } @keyframes shimmer { 0% { left: -70%; } 100% { left: 120%; } } @keyframes splashHideFast { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
@@ -91,10 +178,14 @@
         .bmMenuOption:active { background-color: rgba(138, 43, 226, 0.5); }
 
         /* --- NOVO SPLASH DE AÇÃO (SOUNDWAVE) --- */
-        .bmBusySplashOverlay { /* Estilos mantidos V3 */ }
+        .bmBusySplashOverlay { /* Estilos mantidos V3 */ position: fixed; inset: 0; background: rgba(10, 5, 20, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100003; opacity: 0; transition: opacity 0.5s ease-out; font-family: 'Segoe UI', sans-serif; color: #eee; overflow: hidden; pointer-events: none; }
         .bmSoundwaveContainer { display: flex; justify-content: center; align-items: flex-end; height: 80px; margin-bottom: 20px; gap: 4px; }
         .bmSoundwaveBar { width: 6px; background: linear-gradient(to top, #a056f7, #d0a0ff); border-radius: 3px; animation: soundwaveAnim 1.2s ease-in-out infinite alternate; animation-delay: calc(var(--bar-index) * 0.05s); }
         @keyframes soundwaveAnim { 0% { height: 5px; opacity: 0.5; transform: scaleY(0.1); } 50% { height: 75px; opacity: 1; transform: scaleY(1); } 100% { height: 10px; opacity: 0.6; transform: scaleY(0.15); } }
+         .bmBusyContent { text-align: center; opacity: 0; transform: scale(0.9); transition: opacity 0.5s ease-out 0.1s, transform 0.5s ease-out 0.1s; }
+         .bmBusyMessage1 { font-size: 1.6em; font-weight: 600; margin-top: 35px; margin-bottom: 15px; color: #e0cffc; text-shadow: 0 0 8px rgba(160, 86, 247, 0.7); }
+         .bmBusyMessage2 { font-size: 1.1em; color: #ccc; max-width: 450px; line-height: 1.6; }
+
 
         /* --- MODO DISFARÇADO COM CORES DO SITE (AZUL) --- */
         #bmWrapper.stealth-mode { background: rgba(232, 240, 254, 0.95); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid var(--blue-light); color: #333; animation: none; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3); }
@@ -192,7 +283,6 @@
          body.bm-dark-mode #bmOptionsMenu { background: linear-gradient(160deg, #3a3a40, #252528) !important; border-color: #666 !important; }
          body.bm-dark-mode .bmMenuOption { color: #e0e0e0 !important; }
          body.bm-dark-mode .bmMenuOption:hover { background-color: rgba(123, 83, 193, 0.3) !important; color: #fff !important; }
-
     `;
     const styleTag = document.createElement('style'); styleTag.textContent = css; document.head.appendChild(styleTag);
 
@@ -236,7 +326,7 @@
         // --- Lógica Botão "Iniciar Digitação (Alvo)" (Mantida V3) ---
         startButton.onclick = async function() { /* ... código mantido V3 ... */ const text = bmTextArea.value; const delayInputVal = parseInt(delayInputEl.value, 10); const currentButtonDelay = (!isNaN(delayInputVal) && delayInputVal >= 0) ? delayInputVal : SIMULATED_TYPE_DELAY; if (!text) { showCustomAlert('Texto vazio na caixa do script!', 'error'); return; } if (!activeEl || !document.body.contains(activeEl)) { showCustomAlert('Clique no campo alvo na PÁGINA antes de iniciar!', 'warning', [{ text: 'OK' }]); return; } if (activeEl === bmTextArea || uiWrapperElement.contains(activeEl)) { showCustomAlert('Por favor, clique no campo alvo na PÁGINA (fora desta janela).', 'warning'); return; } if (isCorrectionRunning || isGenerationRunning) { showCustomAlert('Aguarde a outra operação terminar.', 'warning'); return; } this.disabled = true; if (correctButton) correctButton.disabled = true; if (optionsButton) optionsButton.disabled = true; for (let n = 3; n >= 1; n--) { const cnt = document.createElement('div'); cnt.className = 'bmCountdownNumber'; cnt.textContent = n; if (uiWrapperElement && document.body.contains(uiWrapperElement)) { uiWrapperElement.appendChild(cnt); } else { console.error("Elemento wrapper da UI não encontrado para adicionar countdown."); break; } await new Promise(r => setTimeout(r, 700)); if (uiWrapperElement && uiWrapperElement.contains(cnt)) { uiWrapperElement.removeChild(cnt); } await new Promise(r => setTimeout(r, 100)); } let typingCompleted = true; let targetElementForTyping = activeEl; console.log(`Iniciando digitação no elemento alvo clicado pelo usuário com delay ${currentButtonDelay}ms:`, targetElementForTyping); try { targetElementForTyping.focus({ preventScroll: true }); for (let i = 0; i < text.length; i++) { const char = text[i]; const success = sendChar(targetElementForTyping, char); if (!success) { typingCompleted = false; console.error(`Falha ao digitar caractere: "${char}" no alvo do usuário.`); showCustomAlert('Erro ao digitar caractere. O elemento alvo pode ter mudado ou está bloqueado.', 'error'); break; } if (currentButtonDelay > 0) await new Promise(r => setTimeout(r, currentButtonDelay)); } if (typingCompleted) { showCustomAlert('Digitação no alvo concluída!', 'success'); } } catch (error) { console.error("Erro na digitação no alvo:", error); showCustomAlert("Erro inesperado durante a digitação no alvo.", 'error'); } finally { this.disabled = false; if (correctButton) correctButton.disabled = false; if (optionsButton) optionsButton.disabled = false; } };
 
-        // --- LÓGICA CORREÇÃO AUTOMÁTICA (MODIFICADA para simular replace) ---
+        // --- LÓGICA CORREÇÃO AUTOMÁTICA (Mantida Igual ao Anterior) ---
         // Funções auxiliares da correção (showModeSelectionDialog, etc.) mantidas
         async function showModeSelectionDialog() { /* ... código mantido V3 ... */ const buttons = [ { text: 'Básico', value: 'basic', class: 'secondary' }, { text: 'Avançado', value: 'advanced' } ]; return await showCustomAlert( 'Escolha o modo de correção:', 'question', buttons, 'bmModeSelectionDialog' ); }
         async function showBasicModeConfirmationDialog() { /* ... código mantido V3 ... */ const buttons = [ { text: 'Cancelar', value: false, class: 'secondary' }, { text: 'Continuar (Básico)', value: true } ]; return await showCustomAlert( 'Modo Básico:\nA correção será totalmente automática via IA (Puter.JS), sobrescrevendo o texto atual.\nNenhuma tela de correção span a span será exibida.', 'warning', buttons, 'bmBasicConfirmDialog' ); } // Texto do modo básico atualizado
@@ -246,7 +336,7 @@
         function showApplyingStateInSplash(message = "Aplicando alterações...") { /* ... código mantido V3 ... */ if (!correctionSplashEl || !document.body.contains(correctionSplashEl)) return; const loadingState = correctionSplashEl.querySelector('.bmAdvLoadingState'); const applyingText = loadingState.querySelector('.applying-text'); if (loadingState) { if(applyingText) applyingText.textContent = message; loadingState.style.display = 'flex'; loadingState.style.opacity = 0; void loadingState.offsetWidth; loadingState.style.transition = 'opacity 0.3s ease-in'; loadingState.style.opacity = 1; } }
         function hideAdvancedCorrectionSplash() { if (correctionSplashEl) { removeOverlay(correctionSplashEl); correctionSplashEl = null; } }
 
-        // --- Evento Click do Botão Corrigir ---
+        // --- Evento Click do Botão Corrigir (Mantido Igual ao Anterior) ---
         correctButton.onclick = async function () {
             if (isCorrectionRunning || isGenerationRunning) {
                 showCustomAlert('Aguarde a outra operação terminar.', 'warning');
@@ -618,8 +708,158 @@
         // --- LÓGICA DO BOTÃO DE OPÇÕES (...) (Mantida V3) ---
         optionsButton.onclick = function() { /* ... código mantido V3 ... */ if (optionsMenuElement) { removeOverlay(optionsMenuElement); optionsMenuElement = null; return; } if (isCorrectionRunning || isGenerationRunning) { showCustomAlert('Aguarde a outra operação terminar.', 'warning'); return; } optionsMenuElement = document.createElement('div'); optionsMenuElement.id = 'bmOptionsMenu'; optionsMenuElement.innerHTML = ` <button class="bmMenuOption" data-action="github">GitHub</button> <button class="bmMenuOption" data-action="generate">Gerar Texto</button> `; uiWrapperElement.appendChild(optionsMenuElement); optionsMenuElement.querySelectorAll('.bmMenuOption').forEach(option => { option.onclick = async (e) => { const action = e.target.getAttribute('data-action'); removeOverlay(optionsMenuElement); optionsMenuElement = null; if (action === 'github') { window.open(GITHUB_LINK, '_blank'); } else if (action === 'generate') { await startAIGenerationFlow(); } }; }); void optionsMenuElement.offsetWidth; optionsMenuElement.classList.add('show'); };
 
-        // --- FLUXO DE GERAÇÃO DE TEXTO PELA IA (Mantido V3 - Já interage com TARGET_TEXTAREA_SELECTOR) ---
-        async function startAIGenerationFlow() { /* ... código mantido V3 ... */ if (isCorrectionRunning || isGenerationRunning) { showCustomAlert('Aguarde a outra operação terminar.', 'warning'); return; } isGenerationRunning = true; if (startButton) startButton.disabled = true; if (correctButton) correctButton.disabled = true; if (optionsButton) optionsButton.disabled = true; let busySplash = null; let loadingOverlayData = null; let pageTextarea = null; try { try { pageTextarea = await waitForElement(TARGET_TEXTAREA_SELECTOR, 2000); console.log("Textarea da página encontrada:", pageTextarea); } catch (findError) { await showCustomAlert(`Textarea alvo ('${TARGET_TEXTAREA_SELECTOR}') não encontrada na página. Não é possível gerar texto.`, 'error'); throw new Error("Textarea da página não encontrada."); } const proceed = await showCustomAlert( "A geração com IA pode demorar de 1 a 2 minutos, prosseguir?", 'question', [{ text: 'Não', value: false, class: 'secondary' }, { text: 'Sim', value: true }] ); if (!proceed) throw new Error("Geração cancelada pelo usuário."); const proposalText = extractProposalText(); if (!proposalText) { await showCustomAlert("Não foi possível encontrar o texto da proposta na página.", 'error'); throw new Error("Texto da proposta não encontrado."); } loadingOverlayData = showAILoadingOverlayStyled("Comunicando IA..."); await new Promise(r => setTimeout(r, 500)); if (loadingOverlayData?.statusTextElement) loadingOverlayData.statusTextElement.textContent = "Gerando Texto..."; if (loadingOverlayData?.progressBarElement) updateAIProgressBar(loadingOverlayData.progressBarElement, 30); const generationPrompt = `Crie uma redação criativa e diferente da proposta que eu vou te mandar. Mande somente a redação, nem um texto de título, explicação ou nada do tipo. Mande somente o texto, com no mínimo 150 palavras e no máximo 300.\n\n(Proposta da redação): ${proposalText}`; const generatedText = await callPuterAI(generationPrompt, false); if (loadingOverlayData?.progressBarElement) updateAIProgressBar(loadingOverlayData.progressBarElement, 100); if (loadingOverlayData?.statusTextElement) loadingOverlayData.statusTextElement.textContent = "Texto Gerado!"; await new Promise(r => setTimeout(r, 700)); removeOverlay(loadingOverlayData.overlayElement); loadingOverlayData = null; const generatedTextAction = await showGeneratedTextInterface(generatedText); if (generatedTextAction === 'continue') { const finalAction = await showGeneratedTextActions(); if (finalAction === 'replace' || finalAction === 'append') { busySplash = showBusySplash( "Aplicando texto na página...", "Simulando digitação... Por favor, não clique em nada!" ); await new Promise(r => setTimeout(r, 500)); if (pageTextarea && document.body.contains(pageTextarea)) { if (finalAction === 'replace') { console.log(`Ação: Substituir texto em ${TARGET_TEXTAREA_SELECTOR}`); await clearTextareaSimulated(pageTextarea); await new Promise(r => setTimeout(r, 100)); await typeTextFast(generatedText, pageTextarea); } else { console.log(`Ação: Escrever no final em ${TARGET_TEXTAREA_SELECTOR}`); const currentText = pageTextarea.value; const textToAppend = (currentText ? "\n\n" : "") + generatedText; try { pageTextarea.focus({ preventScroll: true }); await new Promise(r => setTimeout(r, 50)); pageTextarea.selectionStart = pageTextarea.selectionEnd = pageTextarea.value.length; console.log("Cursor movido para o fim da textarea da página."); await new Promise(r => setTimeout(r, 50)); } catch (focusError) { console.warn("Falha ao focar ou mover cursor para o fim antes de anexar.", focusError); } await typeTextFast(textToAppend, pageTextarea); } } else { console.error(`Textarea da página ('${TARGET_TEXTAREA_SELECTOR}') não encontrada ou inválida no momento da ação.`); throw new Error("Textarea da página não encontrada para aplicar ação."); } await new Promise(r => setTimeout(r, 500)); removeOverlay(busySplash); busySplash = null; showCustomAlert("Operação concluída!", "success"); } else { console.log("Ação final cancelada."); showCustomAlert("Operação cancelada.", "info"); } } else { console.log("Visualização do texto gerado cancelada."); showCustomAlert("Geração cancelada.", "info"); } } catch (error) { console.error("Erro no fluxo de geração de texto:", error); if (error.message && !error.message.includes("textarea") && error.message !== "Geração cancelada pelo usuário." && error.message !== "Texto da proposta não encontrado.") { showCustomAlert(`Erro durante a geração: ${error.message}`, 'error'); } if (loadingOverlayData) removeOverlay(loadingOverlayData.overlayElement); if (busySplash) removeOverlay(busySplash); } finally { console.log("--- Geração de Texto Finalizada (Bloco Finally) ---"); isGenerationRunning = false; if (!isCorrectionRunning) { if (startButton) startButton.disabled = false; if (correctButton) correctButton.disabled = false; if (optionsButton) optionsButton.disabled = false; } if (loadingOverlayData) removeOverlay(loadingOverlayData.overlayElement); if (busySplash) removeOverlay(busySplash); removeOverlay('bmAlertOverlay'); removeOverlay('bmGeneratedTextDialog'); removeOverlay('bmGeneratedTextActionDialog'); } }
+        // --- FLUXO DE GERAÇÃO DE TEXTO PELA IA (MODIFICADO para incluir prompt do usuário) ---
+        async function startAIGenerationFlow() {
+            if (isCorrectionRunning || isGenerationRunning) {
+                showCustomAlert('Aguarde a outra operação terminar.', 'warning');
+                return;
+            }
+            isGenerationRunning = true;
+            if (startButton) startButton.disabled = true;
+            if (correctButton) correctButton.disabled = true;
+            if (optionsButton) optionsButton.disabled = true;
+            let busySplash = null;
+            let loadingOverlayData = null;
+            let pageTextarea = null;
+            console.log("--- Iniciando Fluxo de Geração de Texto ---");
+
+            try {
+                // 1. Encontrar Textarea da Página
+                try {
+                    pageTextarea = await waitForElement(TARGET_TEXTAREA_SELECTOR, 2000);
+                    console.log("Textarea da página encontrada:", pageTextarea);
+                } catch (findError) {
+                    await showCustomAlert(`Textarea alvo ('${TARGET_TEXTAREA_SELECTOR}') não encontrada na página. Não é possível gerar texto.`, 'error');
+                    throw new Error("Textarea da página não encontrada.");
+                }
+
+                // 2. Confirmação inicial
+                const proceed = await showCustomAlert(
+                    "A geração com IA pode demorar de 1 a 2 minutos, prosseguir?",
+                    'question',
+                    [{ text: 'Não', value: false, class: 'secondary' }, { text: 'Sim', value: true }]
+                );
+                if (!proceed) throw new Error("Geração cancelada pelo usuário.");
+
+                // 3. Extrair Proposta (Contexto opcional)
+                const proposalText = extractProposalText();
+                if (proposalText) {
+                    console.log("Texto da proposta encontrado para contexto.");
+                } else {
+                    console.log("Texto da proposta não encontrado (continuando sem ele).");
+                    // Opcional: Poderia avisar o usuário que a proposta não foi encontrada
+                    // await showCustomAlert("Atenção: Não foi possível encontrar o texto da 'Proposta' na página para usar como contexto.", "warning");
+                }
+
+                // 4. *** NOVO: Obter prompt do usuário ***
+                const userPrompt = await showPromptInputDialog();
+                if (userPrompt === null) { // Verifica se o usuário cancelou
+                    throw new Error("Geração cancelada pelo usuário no prompt.");
+                }
+                console.log("Prompt do usuário recebido:", userPrompt);
+
+                // 5. Mostrar Loading e Construir Prompt Final
+                loadingOverlayData = showAILoadingOverlayStyled("Comunicando IA...");
+                await new Promise(r => setTimeout(r, 500)); // Pequena pausa visual
+
+                let finalPrompt = `Com base no prompt e no contexto da proposta (se houver), gere o texto solicitado. Mande somente o texto final, sem títulos ou explicações adicionais. O texto deve ter 150 palavras no mínimo e 300 palavras no máximo. Randomize este número.\n\n--- PROMPT DO USUÁRIO ---\n${userPrompt}`;
+
+                if (proposalText) {
+                    finalPrompt += `\n\n--- PROPOSTA DA PÁGINA (Contexto Adicional) ---\n${proposalText}`;
+                    console.log("Texto da proposta adicionado ao prompt final.");
+                }
+
+                console.log("Prompt final enviado para IA:", finalPrompt); // Log para debug
+
+                if (loadingOverlayData?.statusTextElement) loadingOverlayData.statusTextElement.textContent = "Gerando Texto...";
+                if (loadingOverlayData?.progressBarElement) updateAIProgressBar(loadingOverlayData.progressBarElement, 30);
+
+                // 6. Chamar IA com o prompt final
+                const generatedText = await callPuterAI(finalPrompt, false); // false indica que não é correção
+
+                // 7. Processar Resultado
+                if (loadingOverlayData?.progressBarElement) updateAIProgressBar(loadingOverlayData.progressBarElement, 100);
+                if (loadingOverlayData?.statusTextElement) loadingOverlayData.statusTextElement.textContent = "Texto Gerado!";
+                await new Promise(r => setTimeout(r, 700));
+                removeOverlay(loadingOverlayData.overlayElement); loadingOverlayData = null;
+
+                const generatedTextAction = await showGeneratedTextInterface(generatedText);
+                if (generatedTextAction === 'continue') {
+                    const finalAction = await showGeneratedTextActions();
+                    if (finalAction === 'replace' || finalAction === 'append') {
+                        busySplash = showBusySplash(
+                            "Aplicando texto na página...",
+                            "Simulando digitação... Por favor, não clique em nada!"
+                        );
+                        await new Promise(r => setTimeout(r, 500));
+
+                        if (pageTextarea && document.body.contains(pageTextarea)) {
+                            if (finalAction === 'replace') {
+                                console.log(`Ação: Substituir texto em ${TARGET_TEXTAREA_SELECTOR}`);
+                                await clearTextareaSimulated(pageTextarea);
+                                await new Promise(r => setTimeout(r, 100));
+                                await typeTextFast(generatedText, pageTextarea);
+                            } else { // append
+                                console.log(`Ação: Escrever no final em ${TARGET_TEXTAREA_SELECTOR}`);
+                                const currentText = pageTextarea.value;
+                                const textToAppend = (currentText ? "\n\n" : "") + generatedText; // Adiciona espaço se já houver texto
+                                try {
+                                    pageTextarea.focus({ preventScroll: true });
+                                    await new Promise(r => setTimeout(r, 50));
+                                    pageTextarea.selectionStart = pageTextarea.selectionEnd = pageTextarea.value.length;
+                                    console.log("Cursor movido para o fim da textarea da página.");
+                                    await new Promise(r => setTimeout(r, 50));
+                                } catch (focusError) {
+                                    console.warn("Falha ao focar ou mover cursor para o fim antes de anexar.", focusError);
+                                }
+                                await typeTextFast(textToAppend, pageTextarea); // Digita o texto a ser anexado
+                            }
+                        } else {
+                            console.error(`Textarea da página ('${TARGET_TEXTAREA_SELECTOR}') não encontrada ou inválida no momento da ação.`);
+                            throw new Error("Textarea da página não encontrada para aplicar ação.");
+                        }
+                        await new Promise(r => setTimeout(r, 500));
+                        removeOverlay(busySplash); busySplash = null;
+                        showCustomAlert("Operação concluída!", "success");
+                    } else { // finalAction === 'cancel'
+                        console.log("Ação final cancelada.");
+                        showCustomAlert("Operação cancelada.", "info");
+                    }
+                } else { // generatedTextAction === 'cancel'
+                    console.log("Visualização do texto gerado cancelada.");
+                    showCustomAlert("Geração cancelada.", "info");
+                }
+            } catch (error) {
+                console.error("Erro no fluxo de geração de texto:", error);
+                // Evita mostrar alertas genéricos para cancelamentos explícitos ou erros já tratados
+                if (error.message &&
+                    !error.message.includes("cancelada pelo usuário") &&
+                    !error.message.includes("Textarea da página não encontrada"))
+                {
+                    showCustomAlert(`Erro durante a geração: ${error.message}`, 'error');
+                }
+                // Limpeza em caso de erro
+                if (loadingOverlayData) removeOverlay(loadingOverlayData.overlayElement);
+                if (busySplash) removeOverlay(busySplash);
+                removeOverlay('bmPromptInputDialog'); // Garante que o diálogo de prompt seja fechado
+            } finally {
+                console.log("--- Geração de Texto Finalizada (Bloco Finally) ---");
+                isGenerationRunning = false;
+                // Reabilita botões SE a outra operação não estiver rodando
+                if (!isCorrectionRunning) {
+                    if (startButton) startButton.disabled = false;
+                    if (correctButton) correctButton.disabled = false;
+                    if (optionsButton) optionsButton.disabled = false;
+                }
+                // Limpeza final de overlays
+                if (loadingOverlayData) removeOverlay(loadingOverlayData.overlayElement);
+                if (busySplash) removeOverlay(busySplash);
+                removeOverlay('bmAlertOverlay'); // Fecha qualquer alerta residual
+                removeOverlay('bmGeneratedTextDialog');
+                removeOverlay('bmGeneratedTextActionDialog');
+                removeOverlay('bmPromptInputDialog');
+            }
+        } // Fim startAIGenerationFlow
 
         // --- Mostrar Interface de Texto Gerado (Mantida V3) ---
         async function showGeneratedTextInterface(generatedText) { /* ... código mantido V3 ... */ const dialogId = 'bmGeneratedTextDialog'; removeOverlay(dialogId); const overlay = document.createElement('div'); overlay.id = dialogId; overlay.className = 'bmDialogOverlay bmDialogFadeIn'; const dialogBox = document.createElement('div'); dialogBox.className = 'bmDialogBox bmDialogEnter'; dialogBox.style.minWidth = '400px'; dialogBox.style.maxWidth = '700px'; dialogBox.style.maxHeight = '80vh'; dialogBox.style.display = 'flex'; dialogBox.style.flexDirection = 'column'; dialogBox.innerHTML = ` <div class="bmDialogIcon info" style="flex-shrink: 0;">i</div> <h3 style="color: #e0cffc; margin-bottom: 15px; font-size: 1.4em; flex-shrink: 0;">Texto Gerado pela IA</h3> <div style="flex-grow: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; margin-bottom: 25px; text-align: left; font-size: 1em; line-height: 1.6; border: 1px solid rgba(255,255,255,0.1);"> ${generatedText.replace(/\n/g, '<br>')} </div> <div class="bmDialogButtonContainer" style="flex-shrink: 0;"> </div> `; return new Promise(resolve => { const buttonContainer = dialogBox.querySelector('.bmDialogButtonContainer'); const btnCancel = document.createElement('button'); btnCancel.textContent = 'Cancelar'; btnCancel.className = 'bmDialogButton secondary'; btnCancel.onclick = () => { removeOverlay(overlay); resolve('cancel'); }; const btnContinue = document.createElement('button'); btnContinue.textContent = 'Continuar'; btnContinue.className = 'bmDialogButton'; btnContinue.onclick = () => { removeOverlay(overlay); resolve('continue'); }; buttonContainer.appendChild(btnCancel); buttonContainer.appendChild(btnContinue); overlay.appendChild(dialogBox); document.body.appendChild(overlay); }); }
