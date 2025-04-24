@@ -854,7 +854,7 @@
               loadingOverlayData = showAILoadingOverlayStyled("Comunicando IA...");
               await new Promise(r => setTimeout(r, 500)); // Pequena pausa visual
 
-              let finalPrompt = `Com base no prompt e no contexto da proposta (se houver), gere o texto solicitado. Mande somente o texto final, sem títulos ou explicações adicionais. O texto deve ter 150 palavras no mínimo e 300 palavras no máximo. Randomize este número.\n\n--- PROMPT DO USUÁRIO ---\n${userPrompt}`;
+              let finalPrompt = `Com base no prompt e no contexto da proposta (se houver), gere o texto solicitado. Mande somente o texto final, sem títulos ou explicações adicionais. O texto deve ter 150 palavras no mínimo e 300 palavras no MÁXIMO, o máximo do máximo é 300.\n\n--- PROMPT DO USUÁRIO ---\n${userPrompt}`;
 
               if (proposalText) {
                   finalPrompt += `\n\n--- PROPOSTA DA PÁGINA (Contexto Adicional) ---\n${proposalText}`;
