@@ -85,8 +85,8 @@
                             itemData.question.content[0] === itemData.question.content[0].toUpperCase())
                         {
                             const messages = [
-                                "🛠️ Selecione a resposta, e [faça certo!](https://paranatools.github.io)",
-                                "🛠️ Selecione a resposta, e [faça certo!](https://paranatools.github.io)"
+                                "🛠️ Selecione a resposta, e [faça certo!](https://pryzen-lab.github.io)",
+                                "🛠️ Selecione a resposta, e [faça certo!](https://pryzen-lab.github.io)"
                             ];
 
                             itemData.answerArea = { calculator: false };
@@ -98,7 +98,7 @@
                                     static: false,
                                     graded: true,
                                     options: {
-                                        choices: [{ content: "✅ paranatools.github.io", correct: true }],
+                                        choices: [{ content: "✅ pryzen-lab.github.io", correct: true }],
                                         randomize: false,
                                         multipleSelect: false,
                                         displayCount: null,
@@ -284,7 +284,7 @@
                         <span id="prStealthToggleText" class="pr-toggle-text">Modo Disfarçado</span>
                     </div>
 
-                    <div class="pr-credit prFadeInSlideUp" style="animation-delay: 0.3s;">paranatools.github.io</div>
+                    <div class="pr-credit prFadeInSlideUp" style="animation-delay: 0.3s;">pryzen-lab.github.io</div>
                 </div>`;
 
             document.body.appendChild(APP.ui.wrapperElement);
@@ -348,10 +348,10 @@
                 spoofToggleWrapper.onclick = () => {
                     APP.cfg.questionSpoof = !APP.cfg.questionSpoof;
                     spoofToggleImg.classList.toggle('active', APP.cfg.questionSpoof);
-                    showPRToast(APP.cfg.questionSpoof ? "✅ Question Spoof Ativado" : "❌ Question Spoof Desativado");
-                    console.log("PR Config: Question Spoof set to", APP.cfg.questionSpoof);
+                    showPRToast(APP.cfg.questionSpoof ? "✅ Bypasser Ativado!" : "❌ Bypasser Desativado.");
+                    console.log("PR Config: Bypasser set to", APP.cfg.questionSpoof);
                 };
-            } else { console.error("PR UI Error: Question Spoof elements not found."); }
+            } else { console.error("PR UI Error: Bypasser elements not found."); }
 
             // Dragging
             if (header && minimizeBtn) {
