@@ -225,10 +225,10 @@
             splash.id = 'prSplash';
             splash.innerHTML = `
                 <div id="prSplashContent">
-                    <img id="prSplashImg" src="https://i.imgur.com/RUWcJ6e.png"/>
+                    <img id="prSplashImg" src="https://i.imgur.com/YiRIDwJ.png"/>
                     <div id="prSplashTexts">
-                        <div id="prSplashTitle">Paraná Tools</div>
-                        <div id="prSplashSubtitle">Khan Academy</div>
+                        <div id="prSplashTitle">Pryzen Labs</div>
+                        <div id="prSplashSubtitle">Cálculo Folha</div>
                     </div>
                     <div id="prLoadingBar"><div id="prLoadingProgress"></div></div>
                 </div>
@@ -257,7 +257,7 @@
 
             APP.ui.wrapperElement.innerHTML = `
                 <div id="prHeader">
-                    <span>Auto Cálculo <span class="pr-version">v${APP.ver}</span></span>
+                    <span>Cálculo Folha<span class="pr-version">v${APP.ver}</span></span>
                     <span id="prMinimizeBtn" title="Minimizar/Expandir">-</span>
                 </div>
                 <div id="prContent">
@@ -268,7 +268,7 @@
 
                     <div id="prSpoofToggleWrapper" class="pr-toggle-wrapper prFadeInSlideUp" style="animation-delay: 0.15s;" title="Modificar questões para facilitar a conclusão (Lógica KhanDestroyer).">
                         <div id="prSpoofToggleImg" class="pr-toggle-img ${APP.cfg.questionSpoof ? 'active' : ''}"></div>
-                        <span id="prSpoofToggleText" class="pr-toggle-text">Question Spoof</span>
+                        <span id="prSpoofToggleText" class="pr-toggle-text">Bypassar Questões</span>
                     </div>
 
                     <div id="prSpeedControlContainer" class="prFadeInSlideUp" style="animation-delay: 0.2s; display: ${APP.cfg.auto ? 'block' : 'none'}; margin-top: 10px; padding: 0 5px;">
