@@ -249,8 +249,8 @@ button:active {
     width: 30vw;
 }
 
-/* Pryzen Lab  Div */
-#pryzen-lab-div {
+/* Pryzen Hub  Div */
+#pryzen-hub-div {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -259,12 +259,12 @@ button:active {
     margin: 100px;
 }
 
-#pryzen-lab-div img {
+#pryzen-hub-div img {
     margin: 0;
     width: 80px;
 }
 
-#pryzen-lab-div p {
+#pryzen-hub-div p {
     margin: 0;
     font-weight: bold;
     font-size: 25px;
