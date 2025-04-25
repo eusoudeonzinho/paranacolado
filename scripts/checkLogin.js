@@ -1,4 +1,12 @@
-const token = localStorage.getItem("token");
+// Pega token da URL ou do localStorage
+const params = new URLSearchParams(window.location.search);
+let token = params.get("token") || localStorage.getItem("token");
+
+if (params.get("token")) {
+    // Se veio token pela URL, salva no localStorage e limpa a URL
+    localStorage.setItem("token", token);
+    window.history.replaceState({}, document.title, "/");
+}
 
 if (token) {
     checkToken(token);
@@ -12,12 +20,12 @@ async function checkToken(token) {
         const user = await res.json();
 
         if (user.error) {
-            tryRefreshAndRetry();
+            await tryRefreshAndRetry();
         } else {
             showUser(user);
         }
     } catch {
-        tryRefreshAndRetry();
+        await tryRefreshAndRetry();
     }
 }
 
@@ -30,7 +38,7 @@ async function tryRefreshAndRetry() {
 
         if (data.token) {
             localStorage.setItem("token", data.token);
-            checkToken(data.token);
+            await checkToken(data.token);
         } else {
             showLogin();
         }
