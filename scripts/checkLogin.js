@@ -74,6 +74,7 @@ function showUser(user) {
     }
 }
 
+// Mostra o Login
 function showLogin() {
     const loginBtn = document.getElementById("login-btn");
     const userInfo = document.getElementById("user-info");
