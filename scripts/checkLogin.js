@@ -52,12 +52,11 @@ function showUser(user) {
     const userInfo = document.getElementById("user-info");
     if (loginBtn == null || userInfo == null) { return; }
 
-    const avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
     loginBtn.style.display = "none";
     userInfo.style.display = "flex";
     userInfo.innerHTML = `
         <div class="inside-button">
-            <img src="${avatarUrl}">
+            <img src="${user.avatar}">
             <button id="logout-button">
                 <img src="/imgs/icons/door.svg" alt="Sair">
             </button>
