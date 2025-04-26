@@ -48,11 +48,16 @@ async function tryRefreshAndRetry() {
 }
 
 function showUser(user) {
-    document.getElementById("login-btn").style.display = "none";
-    document.getElementById("user-info").style.display = "flex";
-    document.getElementById("user-info").innerHTML = `
+    const loginBtn = document.getElementById("login-btn");
+    const userInfo = document.getElementById("user-info");
+    if (loginBtn == null || userInfo == null) { return; }
+
+    const avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+    loginBtn.style.display = "none";
+    userInfo.style.display = "flex";
+    userInfo.innerHTML = `
         <div class="inside-button">
-            <img src="${user.avatar}">
+            <img src="${avatarUrl}">
             <button id="logout-button">
                 <img src="/imgs/icons/door.svg" alt="Sair">
             </button>
@@ -70,6 +75,10 @@ function showUser(user) {
 }
 
 function showLogin() {
-    document.getElementById("login-btn").style.display = "flex";
-    document.getElementById("user-info").style.display = "none";
+    const loginBtn = document.getElementById("login-btn");
+    const userInfo = document.getElementById("user-info");
+    if (loginBtn == null || userInfo == null) { return; }
+
+    loginBtn.style.display = "flex";
+    userInfo.style.display = "none";
 }
