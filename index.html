@@ -1,64 +1,252 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <!-- Configuração do Site -->
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pryzen Hub</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pryzen Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    @import url(/css/general.css);;
+  </style>
+</head>
 
-        <!-- Estilização do Site -->
-        <link rel="stylesheet" href="/css/general.css">
-    </head>
+<body class="min-h-screen hero-pattern text-gray-100">
 
-    <!-- Estruturação do Site -->
-    <body>
-        <!-- Barra de Navegação -->
-        <div class="nav-bar">
-            <div>
-                <img src="/imgs/icon.png" alt="Icone Pryzen Hub">
-                <a href="/"><h2>Pryzen Hub</h2></a>
-            </div>
+  <!-- Header modificado -->
+  <header class="nav-bar w-full py-4 px-6 flex justify-between items-center bg-gradient-to-r from-purple-900 to-purple-700 shadow-lg fixed top-0 z-50">
+    <div class="flex items-center gap-3">
+      <img src="/imgs/icon.png" alt="Pryzen Hub Logo" class="w-20 object-cover">
+      <h1 class="text-2xl font-bold text-white flex items-center jump-text">
+        <span class="gradient-text" style="--i:0">P</span>
+        <span class="gradient-text" style="--i:1">r</span>
+        <span class="gradient-text" style="--i:2">y</span>
+        <span class="gradient-text" style="--i:3">z</span>
+        <span class="gradient-text" style="--i:4">e</span>
+        <span class="gradient-text" style="--i:5">n</span>
+        <span class="text-white ml-2 mobile-hidden">Hub</span>
+      </h1>
+    </div>
+    <button onclick="window.location.href = '/login';" 
+            class="custom-button bg-white/10 text-white px-6 py-2 rounded-full hover:bg-white/20 transition backdrop-blur-sm border border-white/20 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+      </svg>
+      <span class="mobile-hidden">Login</span>
+    </button>
+  </header>
 
-            <div>
-                <a id="login-btn" href="login" style="display: none;">Login</a>
-                <div id="user-info" style="display: none;"></div>
-            </div>
+  <!-- Conteúdo principal atualizado -->
+  <main class="content pt-32 pb-16 mt-24">
+
+    <!-- Seção Hero modificada -->
+    <section id="introduction-div" class="container mx-auto px-4 mb-32 text-center">
+      <div class="flex flex-col items-center gap-10">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 jump-text">
+          <span style="--i:0">F</span>
+          <span style="--i:1">e</span>
+          <span style="--i:2">r</span>
+          <span style="--i:3">r</span>
+          <span style="--i:4">a</span>
+          <span style="--i:5">m</span>
+          <span style="--i:6">e</span>
+          <span style="--i:7">n</span>
+          <span style="--i:8">t</span>
+          <span style="--i:9">a</span>
+          <span style="--i:10">s</span>
+        </h1>
+        <div class="flex justify-center mb-8">
+          <img src="/imgs/redacaorush.png" alt="Ferramentas" class="tool-image w-64 h-64">
         </div>
-
-        <!-- Página Principal -->
-        <div class="content">
-            <h1>Ferramentas Disponíveis</h1>
-            <div id="tools-div">
-                <a href="redacaorush"><img src="imgs/redacaorush.png" alt="Redação Rush"></a>
-            </div>
-
-            <div class="footer">
-                <div>
-                    <div>
-                        <h1>O que é o Pryzen Hub?</h1>
-                        <p>O **Pryzen **é um conjunto inteligente de scripts projetado para
-                            facilitar e otimizar o uso de diversas plataformas educacionais
-                            online. Ele atua como uma caixa de ferramentas digital, trazendo
-                            soluções personalizadas para alunos, professores e entusiastas
-                            da tecnologia educacional.
+        <p class="text-xl text-gray-300 max-w-2xl mx-auto italic">
+            O <strong class="text-purple-400">Pryzen</strong> é um conjunto inteligente de scripts projetado para facilitar e otimizar o uso de diversas plataformas educacionais online. Ele atua como uma caixa de ferramentas digital, trazendo soluções personalizadas para alunos, professores e entusiastas da tecnologia educacional. Com suporte para plataformas populares como <strong class="text-purple-400">Khan Academy, Quizizz, Matific</strong>, entre outras, o Pryzen oferece funcionalidades que vão desde melhorias na interface até automações que agilizam tarefas repetitivas, tornando a experiência de aprendizado mais fluida, rápida e intuitiva. Seja para revisar conteúdo, gerenciar tempo ou simplesmente explorar novas formas de estudar, o Pryzen é feito para quem quer tirar o máximo proveito do ambiente digital com praticidade e estilo.
+        </p>
     
-                            Com suporte para plataformas populares como *Khan Academy, Quizizz,
-                            Matific*, entre outras, o Pryzen oferece funcionalidades que vão
-                            desde melhorias na interface até automações que agilizam tarefas
-                            repetitivas, tornando a experiência de aprendizado mais fluida,
-                            rápida e intuitiva.
-                            
-                            Seja para revisar conteúdo, gerenciar tempo ou simplesmente
-                            explorar novas formas de estudar, o Pryzen é feito para quem
-                            quer tirar o máximo proveito do ambiente digital com praticidade 
-                            e estilo.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
+    </section>
 
-        <!-- Java Script -->
-        <script src="scripts/checkLogin.js"></script>
-    </body>
+     <!-- Ferramentas Section (Atualizada) -->
+  <section id="ferramentas" class="container mx-auto px-4 mb-32">
+    <h2 class="text-3xl font-bold mb-12 text-center gradient-text">Nossas Ferramentas</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="p-6 rounded-xl bg-gray-900/50 backdrop-blur-sm border border-purple-900/50 hover:border-purple-400 transition-all">
+        <h3 class="text-xl font-semibold mb-2 text-purple-300">Redação Rush</h3>
+        <p class="text-gray-300">Otimização de interface e recursos avançados de aprendizado.</p>
+        <button class="custom-button mt-4 bg-purple-600 hover:bg-purple-700"
+        onclick="window.location.href = '/redacaorush';">Experimentar</button>
+      </div>
+
+      <div class="p-6 rounded-xl bg-gray-900/50 backdrop-blur-sm border border-purple-900/50 hover:border-purple-400 transition-all">
+        <h3 class="text-xl font-semibold mb-2 text-purple-300">Cálculo Folha</h3>
+        <p class="text-gray-300">Otimização de interface e recursos avançados de aprendizado.</p>
+        <button class="custom-button mt-4 bg-purple-600 hover:bg-purple-700">Experimentar</button>
+      </div>
+      <div class="p-6 rounded-xl bg-gray-900/50 backdrop-blur-sm border border-purple-900/50 hover:border-purple-400 transition-all">
+        <h3 class="text-xl font-semibold mb-2 text-purple-300">Bilingue</h3>
+        <p class="text-gray-300">Otimização de interface e recursos avançados de aprendizado.</p>
+        <button class="custom-button mt-4 bg-purple-600 hover:bg-purple-700">Experimentar</button>
+      </div>
+      <!-- Adicionar mais ferramentas -->
+    </div>
+  </section>
+
+  <!-- Tutoriais Section (Atualizada) -->
+  <section id="tutoriais" class="container mx-auto px-4 mb-32">
+    <h2 class="text-3xl font-bold mb-12 text-center gradient-text">Tutoriais e Suporte</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="p-6 rounded-xl bg-gray-900/50 backdrop-blur-sm border border-purple-900/50 hover:border-purple-400 transition-all">
+        <svg class="w-12 h-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <h3 class="text-xl font-semibold mb-2 text-purple-300">Guia Inicial</h3>
+        <p class="text-gray-300 mb-4">Aprenda a configurar e usar nossas ferramentas principais.</p>
+        <span class="text-sm text-purple-400">15 minutos</span>
+      </div>
+
+      <div class="p-6 rounded-xl bg-gray-900/50 backdrop-blur-sm border border-purple-900/50 hover:border-purple-400 transition-all">
+        <svg class="w-12 h-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <h3 class="text-xl font-semibold mb-2 text-purple-300">Guia Inicial</h3>
+        <p class="text-gray-300 mb-4">Aprenda a configurar e usar nossas ferramentas principais.</p>
+        <span class="text-sm text-purple-400">15 minutos</span>
+      </div>
+
+      <div class="p-6 rounded-xl bg-gray-900/50 backdrop-blur-sm border border-purple-900/50 hover:border-purple-400 transition-all">
+        <svg class="w-12 h-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <h3 class="text-xl font-semibold mb-2 text-purple-300">Guia Inicial</h3>
+        <p class="text-gray-300 mb-4">Aprenda a configurar e usar nossas ferramentas principais.</p>
+        <span class="text-sm text-purple-400">15 minutos</span>
+      </div>
+      <!-- Adicionar mais tutoriais -->
+    </div>
+  </section>
+
+  <!-- Feedback Section (Atualizada) -->
+  <section id="feedback" class="container mx-auto px-4 mb-32">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-3xl font-bold mb-8 text-center gradient-text">Sua Opinião é Importante</h2>
+      <form class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium mb-2 text-gray-300">Tipo de Feedback</label>
+          <select class="w-full px-4 py-2 rounded-md bg-gray-800 border border-purple-900/50 focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-300">
+            <option>Sugestão</option>
+            <option>Problema</option>
+            <option>Elogio</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2 text-gray-300">Mensagem</label>
+          <textarea rows="4" required class="w-full px-4 py-2 rounded-md bg-gray-800 border border-purple-900/50 focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-300"></textarea>
+        </div>
+        <button type="submit" class="w-full custom-button bg-purple-600 hover:bg-purple-700">Enviar Feedback</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Newsletter Section (Atualizada) -->
+  <section id="newsletter" class="container mx-auto px-4 mb-32">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-3xl font-bold mb-6 gradient-text">Fique por dentro das novidades</h2>
+      <p class="text-gray-300 mb-8">
+        Inscreva-se para receber atualizações sobre novas ferramentas e dicas de uso.
+      </p>
+      <form class="flex gap-4">
+        <input
+          type="email"
+          placeholder="Seu melhor e-mail"
+          required
+          class="flex-1 px-4 py-2 rounded-md bg-gray-800 border border-purple-900/50 focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-300"
+        />
+        <button type="submit" class="custom-button bg-purple-600 hover:bg-purple-700">Inscrever-se</button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="bg-gray-900/80 backdrop-blur-sm py-12 px-4 mt-32">
+    <div class="container mx-auto max-w-6xl">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Sobre o Pryzen Hub -->
+        <div class="space-y-4">
+          <h3 class="text-xl font-bold text-purple-400">Sobre o Pryzen Hub</h3>
+          <p class="text-gray-300">
+            Ferramentas inteligentes para otimizar sua experiência educacional online.
+          </p>
+          <div class="flex space-x-4">
+            <img src="/imgs/icon.png" alt="Pryzen Logo" class="h-10 w-10">
+          </div>
+        </div>
+        
+        <!-- Links Rápidos -->
+        <div class="space-y-4">
+          <h3 class="text-xl font-bold text-purple-400">Links Rápidos</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-300 hover:text-purple-300 transition">Início</a></li>
+            <li><a href="#ferramentas" class="text-gray-300 hover:text-purple-300 transition">Ferramentas</a></li>
+            <li><a href="#tutoriais" class="text-gray-300 hover:text-purple-300 transition">Tutoriais</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-purple-300 transition">Blog</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-purple-300 transition">Suporte</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-purple-300 transition">FAQ</a></li>
+            <li><a href="#feedback" class="text-gray-300 hover:text-purple-300 transition">Contato</a></li>
+          </ul>
+        </div>
+        
+        <!-- Redes Sociais -->
+        <div class="space-y-4">
+          <h3 class="text-xl font-bold text-purple-400">Redes Sociais</h3>
+          <div class="flex space-x-4">
+            <!-- GitHub -->
+            <a href="#" class="text-gray-400 hover:text-white transition transform hover:scale-110">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
+              </svg>
+            </a>
+            
+            <!-- Twitter -->
+            <a href="#" class="text-gray-400 hover:text-blue-400 transition transform hover:scale-110">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+              </svg>
+            </a>
+            
+            <!-- YouTube -->
+            <a href="#" class="text-gray-400 hover:text-red-500 transition transform hover:scale-110">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd"></path>
+              </svg>
+            </a>
+            
+            <!-- Discord -->
+            <a href="#" class="text-gray-400 hover:text-indigo-500 transition transform hover:scale-110">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"></path>
+              </svg>
+            </a>
+          </div>
+          <p class="text-gray-400 text-sm">Junte-se à nossa comunidade</p>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-12 pt-8 text-center">
+        <p class="text-gray-400 text-sm">
+          &copy; 2025 Pryzen Hub. Todos os direitos reservados.
+        </p>
+        <div class="flex justify-center space-x-6 mt-4">
+          <a href="#" class="text-gray-400 hover:text-purple-300 text-sm">Termos de Serviço</a>
+          <a href="#" class="text-gray-400 hover:text-purple-300 text-sm">Política de Privacidade</a>
+          <a href="#" class="text-gray-400 hover:text-purple-300 text-sm">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+      
+  </main>
+
+  <!-- Java Script -->
+  <script src="/js/checkLogin.js"></script>
+</body>
 </html>

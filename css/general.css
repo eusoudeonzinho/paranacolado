@@ -66,6 +66,8 @@ body {
 
 .content {
     padding-top: 100px;
+    background: radial-gradient(circle, #ffffff10 1px, transparent 1px) 0 0, radial-gradient(circle, #20202000 1px, transparent 1px) 5px 5px;
+    background-size: 25px 25px;
 }
 
 /* Estilização de Headers na Nav-Bar */
@@ -249,6 +251,11 @@ button:active {
     width: 30vw;
 }
 
+.footer .expanded-div {
+    width: 50vw;
+    gap: 20px;
+}
+
 /* Pryzen Hub  Div */
 #pryzen-hub-div {
     display: flex;
@@ -427,6 +434,10 @@ button:active {
 /* Estilização de textos */
 .italic {
     font-style: italic;
+}
+
+.bold {
+    font-weight: bold;
 }
 
 /* Estilizações para animações de Texto */
