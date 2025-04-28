@@ -1,65 +1,237 @@
-/* Estilos customizados */
-:root {
+  /* Estilos customizados */
+  :root {
+    --hover-color: #872cdf;
+    --active-color: #be79ff;
+  }
+
+  body {
+    font-family: "Open Sans", sans-serif;
+    background-color: #0b0b0b;
+  }
+
+/* Estilização do login/user-info */
+#user-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+}
+
+#user-info img {
+  width: 50px;
+  border-radius: 50px;
+}
+
+#login-btn {
+  background-color: #8b5cf6; /* Cor equivalente ao purple-600 do Tailwind */
+  padding: 0.5rem 1.5rem; /* Equivalente a px-6 py-2 */
+  border-radius: 9999px; /* Equivalente a rounded-full */
+  border: 1px solid rgba(192, 132, 252, 0.2); /* border-purple-400/20 */
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#login-btn:hover {
+  background-color: #7c3aed; /* purple-700 */
+  border-color: rgba(192, 132, 252, 0.4); /* border-purple-400/40 */
+  transform: scale(1.05); /* Efeito de aumento */
+}
+
+#login-btn:active {
+  transform: scale(0.95);
+}
+
+
+/* Botão Imagem */
+.inside-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inside-button > img {
+  border: 2px #872cdf solid;
+}
+
+.inside-button button {
+  --bg: black;
+  --hover: black;
+  --active:black;
+  --scale: 1.0;
+
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+
+  width: 50px;
+  height: 50px;
+  
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  padding: 0px;
+  margin: 0px;
+  cursor: pointer;
+  text-align: center;
+
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inside-button button > img {
+  color: white;
+  width: 30px !important;
+  object-fit: contain;
+}
+
+.inside-button button:hover {
+  opacity: 1;
+  scale: 1;
+}
+
+.inside-button button:active {
+  background-color: hsla(0, 0%, 31%, 0.494);
+  scale: 1;
+}
+
+  /* Nav-Bar */
+.nav-bar {
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px;
+  padding-left: 20px; padding-right: 20px;
+
+  width: 100vw;
+  box-sizing: border-box;
+
+  position: fixed;
+  z-index: 1000;
+}
+
+.nav-bar img {
+  width: 80px;
+  object-fit: cover;
+}
+
+.nav-bar > div {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: 20px; margin-right: 20px;
+}
+
+/* Estilização de Hyperlinks da Nav-Bar */
+.nav-bar a {
   --hover-color: #872cdf;
   --active-color: #be79ff;
+
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  margin-left: 10px; margin-right: 10px;
+  transition: 0.2s;
 }
-body {
-  font-family: "Open Sans", sans-serif;
-  background-color: #0b0b0b;
-}
-.gradient-text {
-  background: linear-gradient(to right, #a78bfa, #8b5cf6);
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.hero-pattern {
-  background-size: 50px 50px;
-  background-color: #0B0B0B;
-}
-/* Estilos dos botões */
-.custom-button {
-  background-color: black;
-  border-radius: 50px;
-  padding: 15px 40px;
-  transition: all 0.2s;
-}
-.custom-button:hover {
+
+.nav-bar a:hover {
+  color: var(--hover-color);
   transform: scale(1.1);
-  background-color: #141414;
 }
-.custom-button:active {
+
+.nav-bar a:active {
+  color: var(--active-color);
   transform: scale(0.9);
-  background-color: #505050;
+  text-shadow: 0px 0px 5px var(--active-color);
 }
-/* Estilos das ferramentas */
-.tool-image {
-  filter: drop-shadow(0px 0px 3px #892cdf8c);
-  transition: all 0.2s;
+
+
+/* Estilização de Headers na Nav-Bar */
+.nav-bar h2 {
+  transition: 0.2s;
 }
-.tool-image:hover {
-  transform: scale(1.1);
-  filter: drop-shadow(0px 0px 5px #9d2cdf9a);
-}
-.tool-image:active {
-  transform: rotate(10deg) scale(0.9);
-  filter: drop-shadow(0px 0px 5px #c431e9af);
-}
-/* Animação de texto */
-@keyframes jump {
-  0%   { transform: translateY(0); opacity: 0; }
-  30%  { transform: translateY(-15px); opacity: 1; }
-  60%  { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-.jump-text span {
-  animation: jump 0.6s ease-in-out;
-  animation-delay: calc(var(--i) * 0.1s);
-  animation-fill-mode: both;
-}
+
 @media (max-width: 600px) {
-  .mobile-hidden {
-    display: none;
+  .nav-bar h2 {
+      transform: scale(0);
+      opacity: 0;
   }
 }
+  .gradient-text {
+    background: linear-gradient(to right, #a78bfa, #8b5cf6);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-pattern {
+    background-size: 50px 50px;
+    background-color: #0B0B0B;
+  }
+
+  /* Estilos dos botões */
+  .custom-button {
+    background-color: black;
+    border-radius: 50px;
+    padding: 15px 40px;
+    transition: all 0.2s;
+  }
+
+  .custom-button:hover {
+    transform: scale(1.1);
+    background-color: #141414;
+  }
+
+  .custom-button:active {
+    transform: scale(0.9);
+    background-color: #505050;
+  }
+
+  /* Estilos das ferramentas */
+  .tool-image {
+    filter: drop-shadow(0px 0px 3px #892cdf8c);
+    transition: all 0.2s;
+  }
+
+  .tool-image:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0px 0px 5px #9d2cdf9a);
+  }
+
+  .tool-image:active {
+    transform: rotate(10deg) scale(0.9);
+    filter: drop-shadow(0px 0px 5px #c431e9af);
+  }
+
+  /* Animação de texto */
+  @keyframes jump {
+    0%   { transform: translateY(0); opacity: 0; }
+    30%  { transform: translateY(-15px); opacity: 1; }
+    60%  { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .jump-text span {
+    animation: jump 0.6s ease-in-out;
+    animation-delay: calc(var(--i) * 0.1s);
+    animation-fill-mode: both;
+  }
+
+  @media (max-width: 600px) {
+    .mobile-hidden {
+      display: none;
+    }
+  }
